@@ -61,7 +61,7 @@ cs_configBootloader(){
 
 cs_installProgs(){
 	for i in ${CS_PROGS[*]}; do
-		pacman -S $i || {
+		pacman -S --noconfirm $i || {
 			echo could not install package $i
 			return 1
 		}
