@@ -9,8 +9,8 @@ Usage
 =====
 * Upload the files in src to a webspace of your choice
 * Change the links in initstrap.sh appropriately
-* Adjust the settings in env.conf according to your taste
-	but be aware of what you change.
+* Adjust the settings in env.conf according to your taste,
+	but be aware of what you're changing.
 * Shorten the link of your new initstrap.sh location
 * Start the Archlinux live cd and establish a working internet connection
 * Execute the command:
