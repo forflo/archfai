@@ -1,11 +1,11 @@
 #!/bin/bash
 
 IS_LINKS=(
-	"http://www2.fh-rosenheim.de/florian.b.mayer/bootstrap"
-	"http://www2.fh-rosenheim.de/florian.b.mayer/chrootstrap"
+	"https://raw.githubusercontent.com/forflo/archfai/master/src/bootstrap.sh"
+	"https://raw.githubusercontent.com/forflo/archfai/master/src/chrootstrap.sh"
 )
 
-ENV="http://www2.fh-rosenheim.de/florian.b.mayer/env"
+ENV="https://raw.githubusercontent.com/forflo/archfai/master/src/env.conf"
 
 is_download(){
 	for ((i=0; i<${#IS_LINKS[*]}; i++)); do
