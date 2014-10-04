@@ -14,7 +14,7 @@ Usage
 * Shorten the link of your new initstrap.sh location
 * Start the Archlinux live cd and establish a working internet connection
 * Execute the command:
-	$ curl -L <shortened_link> | bash
+	$ curl -L bit.ly/yourlink | bash
 
 That's all.
 You should have a working base installation of Archlinux in about
