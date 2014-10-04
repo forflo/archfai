@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. env.conf
+
 cs_configLocale(){
 	sed --in-place -e "s/^#${CS_LOCPRE}\\(.*\\)/${CS_LOCPRE}\\1/g" ${CS_LOCFILE} || return 1
 	sed --in-place -e "s/^#${CS_SYSLOC}\\(.*\\)/${CS_SYSLOC}\\1/g" ${CS_LOCFILE} || return 1
