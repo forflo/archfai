@@ -65,9 +65,9 @@ is_download(){
 # Runs the bootstrapping files
 ##
 is_startStrapping(){
-	clog 2 "[is_startStrappig()]" Starting ${BS_NAMES[0]}
+	clog 2 "[is_startStrappig()]" Starting ${IS_NAMES[0]}
 
-	bash -- ${BS_NAMES[0]} || {
+	bash -- ${IS_NAMES[0]} || {
 		clog 1 "[is_startStrapping()]" Initial Bootstrapping failed
 		return 1
 	}
@@ -78,8 +78,8 @@ is_startStrapping(){
 		return 1
 	}
 	
-	clog 2 "[is_startStrapping()]" Starting ${BS_NAMES[1]}
-	cat ${BS_NAMES[1]} | arch-chroot /mnt/ /bin/bash || {
+	clog 2 "[is_startStrapping()]" Starting ${IS_NAMES[1]}
+	cat ${IS_NAMES[1]} | arch-chroot /mnt/ /bin/bash || {
 		clog 1 "[is_startStrapping()]" Arch-chroot strapping failed
 		return 1
 	}
