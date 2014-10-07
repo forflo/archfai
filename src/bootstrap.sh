@@ -145,7 +145,7 @@ install(){
 		}
 	done
 
-	for i in $CS_ORDER; do
+	for i in $BS_ORDER; do
 		clog 2 "[install()]" Running function $i
 		${i} || {
 			clog 1 "[install()]" function $i failed
