@@ -17,7 +17,10 @@ bs_part(){
 	
 	for i in $CS_HOOKS; do
 		echo running hook $i
-		
+		${i} || {
+			echo hook $i failed
+			return 1
+		}
 	done
 	return 0
 }
@@ -103,7 +106,7 @@ bs_cleanup(){
 install(){
 	# insert hooks
 	for i in $CS_HOOKS; do
-		[ -f lvm ] && {
+		[ -f $i ] && {
 			echo loading hook $i
 			. ${i}.sh
 		} || {

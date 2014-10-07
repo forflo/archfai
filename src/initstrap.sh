@@ -7,6 +7,13 @@ IS_LINKS=(
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/lvm.sh"
 )
 
+IS_NAMES=(
+	"step_0"
+	"step_1"
+	"crypt"
+	"lvm"
+)
+
 ENV="https://raw.githubusercontent.com/forflo/archfai/master/src/env.conf"
 
 ##
@@ -15,11 +22,12 @@ ENV="https://raw.githubusercontent.com/forflo/archfai/master/src/env.conf"
 is_download(){
 	for ((i=0; i<${#IS_LINKS[*]}; i++)); do
 		echo Downloading ${IS_LINKS[$i]}
-		curl -o step_$i -L ${IS_LINKS[$i]} > /dev/null 2>&1 || {
+		curl -o ${IS_NAMES[i]} -L ${IS_LINKS[$i]} > /dev/null 2>&1 || {
 			echo Download failed! ...
 			return 1
 		}
-		chmod 750 step_$i || {
+		
+		chmod 750 ${IS_NAMES[i]} || {
 			echo Chmod failed
 			return 1
 		}
@@ -30,6 +38,7 @@ is_download(){
 		echo Download failed! ...
 		return 1
 	}
+	
 	chmod 750 env.conf || {
 		echo Chmod failed
 		return 1
