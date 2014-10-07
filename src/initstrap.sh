@@ -77,6 +77,11 @@ is_clean(){
 			return 1 
 		}
 	done
+	
+	rm env.conf > /dev/null 2>&1 || {
+		echo Deletion of env.conf failed
+		return 1
+	}
 	return 0
 }
 
