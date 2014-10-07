@@ -1,3 +1,3 @@
-﻿crypt(){
+﻿crypt_hook(){
 	:
 }
