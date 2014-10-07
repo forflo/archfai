@@ -108,7 +108,7 @@ install(){
 	for i in $CS_HOOKS; do
 		[ -f $i ] && {
 			echo loading hook $i
-			. ${i}.sh
+			. ${i}
 		} || {
 			echo could not find the hook
 			return 1
