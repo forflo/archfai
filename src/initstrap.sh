@@ -8,10 +8,10 @@ IS_LINKS=(
 )
 
 IS_NAMES=(
-	"step_0"
-	"step_1"
-	"crypt"
-	"lvm"
+	"step_0.sh"
+	"step_1.sh"
+	"crypt.sh"
+	"lvm.sh"
 )
 
 ENV="https://raw.githubusercontent.com/forflo/archfai/master/src/env.conf"
@@ -71,8 +71,8 @@ is_startStrapping(){
 # Deletes each downloaded file
 ##
 is_clean(){
-	for ((i=0; i<${#IS_LINKS[*]}; i++)); do
-		rm step_$i > /dev/null 2>&1 || {
+	for ((i=0; i<${#IS_NAMES[*]}; i++)); do
+		rm ${IS_NAMES[i]} > /dev/null 2>&1 || {
 			echo Deletion of step_$i failed
 			return 1 
 		}
