@@ -16,7 +16,7 @@ bs_part(){
 	done
 	
 	for i in $CS_HOOKS; do
-		echo running hook $i
+		echo running hook function $i
 		${i} || {
 			echo hook $i failed
 			return 1

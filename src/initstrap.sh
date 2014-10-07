@@ -8,10 +8,10 @@ IS_LINKS=(
 )
 
 IS_NAMES=(
-	"step_0.sh"
-	"step_1.sh"
-	"crypt.sh"
-	"lvm.sh"
+	"bootstrap"
+	"chrootstrap"
+	"crypt_hook"
+	"lvm_hook"
 )
 
 ENV="https://raw.githubusercontent.com/forflo/archfai/master/src/env.conf"
@@ -51,14 +51,14 @@ is_download(){
 # Runs every
 ##
 is_startStrapping(){
-	bash -- step_0.sh || {
+	bash -- ${BS_NAMES[0]} || {
 		echo Initial Bootstrapping failed
 		return 1
 	}
 
 	# copy env to chroot-environment
 	cp env.conf /mnt/ || return 1
-	arch-chroot /mnt/ /bin/bash < step_1.sh || {
+	arch-chroot /mnt/ /bin/bash < ${BS_NAMES[1]} || {
 		echo Arch-chroot strapping failed
 		return 1
 	}
