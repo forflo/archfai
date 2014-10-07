@@ -8,6 +8,7 @@
 ##
 bs_part(){
 	for ((i=0; i<${#BS_PARTCMDS[*]}; i++)); do
+		clog 2 "[bs_part()]" Running partition command ${BS_PARTCMDS[i]:20:1} "..."
 		${BS_PARTCMDS[i]} || {
 			clog 1 "[bs_part()]" error in command":"
 			clog 1 "[bs_part()]    " ${BS_PARTCMDS[i]}
@@ -16,7 +17,7 @@ bs_part(){
 	done
 	
 	for i in $CS_HOOKS; do
-		clog 2 "[bs_part()]" running hook function: $i
+		clog 2 "[bs_part()]" running hook function":" $i
 		${i} || {
 			clog 1 "[bs_part()]" hook $i failed
 			return 1
@@ -32,9 +33,11 @@ bs_part(){
 ##
 bs_mkfs(){
 	for ((i=0; i<${#BS_FILESYS[*]}; i++)); do
+		clog 2 "[bs_mkfs()]" Running filesystem command":" 
+		clog 2 "[bs_mkfs()]    " ${BS_FILESYS[i]} "..."
 		${BS_FILESYS[i]} || {
-			clog 2 "[bs_mkfs()]" error in command":"
-			clog 2 "[bs_mkfs()]    " ${BS_FILESYS[i]}
+			clog 1 "[bs_mkfs()]" error in command":"
+			clog 1 "[bs_mkfs()]    " ${BS_FILESYS[i]}
 			return 1
 		}
 	done
@@ -47,9 +50,11 @@ bs_mkfs(){
 ##
 bs_mount(){
 	for ((i=0; i<${#BS_MOUNT[*]}; i++)); do
+		clog 2 "[bs_mount()]" Running mount command":" 
+		clog 2 "[bs_mount()]    " ${BS_MOUNT[i]} "..."
 		${BS_MOUNT[i]} || {
-			echo error in command
-			echo "${BS_MOUNT[i]}"
+			clog 1 "[bs_mount]" error in command
+			clog 1 "[bs_mount]    " "${BS_MOUNT[i]}"
 			return 1
 		}
 	done
@@ -61,9 +66,13 @@ bs_mount(){
 # the most current mirror list from the archlinux web server
 ##
 bs_selMirror(){
-	curl -o /etc/pacman.d/mirrorlist "$BS_MIRRORLINK" || return 1
-	mv /etc/pacman.d/mirrorlist /etc/pacman.d/old
-	cut -c 2- /etc/pacman.d/old > /etc/pacman.d/mirrorlist
+	clog 2 "[bs_selMirror()]" Download mirrorlist from archlinux web server
+	curl -o /etc/pacman.d/mirrorlist "$BS_MIRRORLINK" > /dev/null 2>&1 || { 
+		clog 1 "[bs_selMirror()]" Download failed!
+		return 1
+	}
+	mv /etc/pacman.d/mirrorlist /etc/pacman.d/old || return 1
+	cut -c 2- /etc/pacman.d/old > /etc/pacman.d/mirrorlist 
 	rm /etc/pacman.d/old
 	return 0
 }
@@ -72,7 +81,11 @@ bs_selMirror(){
 # Installs the base system
 ##
 bs_instBaseSys(){
-	echo -e "\n\nY\n" | pacstrap -i /mnt base base-devel || return 1
+	echo -e "\n\nY\n" | pacstrap -i /mnt base base-devel || { 
+		curl 1 "[bs_instBaseSys()]" Could not finish pacstrapping!
+		return 1
+	}
+	
 	return 0
 }
 
@@ -81,7 +94,10 @@ bs_instBaseSys(){
 ##
 bs_genFstab(){
 	echo generating fstab...
-	genfstab -U -p /mnt >> /mnt/etc/fstab || return 1
+	genfstab -U -p /mnt >> /mnt/etc/fstab || { 
+		clog 1 "[bs_instBaseSys()]" Generation of the fstab file failed!
+		return 1
+	}
 }
 
 ##
@@ -96,7 +112,12 @@ bs_finish(){
 # Unmounts the disks still mounted
 ##
 bs_cleanup(){
-	umount ${BS_DISK}1 ${BS_DISK}2
+	umount ${BS_DISK}1 ${BS_DISK}2 || {
+		clog 1 "[bs_cleanup()]" Cleanup failed!
+		return 1
+	}
+	
+	return 0
 }
 
 ##

@@ -55,6 +55,8 @@ is_download(){
 			return 1
 		}
 	done
+	
+	clog 2 "[is_download()]" Finished all downloads successfully
 
 	return 0
 }
@@ -78,6 +80,8 @@ is_startStrapping(){
 		clog 1 "[is_startStrapping()]" Arch-chroot strapping failed
 		return 1
 	}
+	
+	clog 2 "[is_startStrapping()]" Finished bootstrapping! "You're good to go!"
 
 	return 0
 }
