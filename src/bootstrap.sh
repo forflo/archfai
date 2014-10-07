@@ -2,6 +2,10 @@
 
 . env.conf
 
+##
+# Traverses the PART_CMD array and runs
+# every command that's inside of it
+##
 bs_part(){
 	for ((i=0; i<${#BS_PARTCMDS[*]}; i++}; do
 		${BS_PARTCMDS[i]} || {
@@ -18,6 +22,10 @@ bs_part(){
 	return 0
 }
 
+##
+# Traverses the BS_FILESYS array and runs every
+# command that's inside of it
+##
 bs_mkfs(){
 	for ((i=0; i<${#BS_FILESYS[*]}; i++)); do
 		${BS_FILESYS[i]} || {
@@ -29,6 +37,9 @@ bs_mkfs(){
 	return 0
 }
 
+##
+# Traverses the commands in the BS_MOUNT array
+##
 bs_mount(){
 	for ((i=0; i<${#BS_MOUNT[*]}; i++)); do
 		${BS_MOUNT[i]} || {
@@ -40,6 +51,10 @@ bs_mount(){
 	return 0
 }
 
+##
+# Configures the pacman package manager by downloading
+# the most current mirror list from the archlinux web server
+##
 bs_selMirror(){
 	curl -o /etc/pacman.d/mirrorlist "$BS_MIRRORLINK" || return 1
 	mv /etc/pacman.d/mirrorlist /etc/pacman.d/old
@@ -48,25 +63,43 @@ bs_selMirror(){
 	return 0
 }
 
+##
+# Installs the base system
+##
 bs_instBaseSys(){
 	echo -e "\n\nY\n" | pacstrap -i /mnt base base-devel || return 1
 	return 0
 }
 
+##
+# Generates an initial fstab
+##
 bs_genFstab(){
 	echo generating fstab...
 	genfstab -U -p /mnt >> /mnt/etc/fstab || return 1
 }
 
+##
+# Echoes some messages
+##
 bs_finish(){
 	echo finished installing your base system.
 	echo now chrootstrapping starts
 }
 
+##
+# Unmounts the disks still mounted
+##
 bs_cleanup(){
 	umount ${BS_DISK}1 ${BS_DISK}2
 }
 
+##
+# Traverses the CS_ORDER array which contains
+# the names of the functions that should be run.
+# You can, of course, modify this list to fit this
+# program to your needs
+##
 install(){
 	# insert hooks
 	for i in $CS_HOOKS; do
@@ -94,5 +127,4 @@ install || {
 	bs_cleanup
 	exit 1
 }
-
 exit 0
