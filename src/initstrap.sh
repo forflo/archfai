@@ -3,6 +3,8 @@
 IS_LINKS=(
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/bootstrap.sh"
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/chrootstrap.sh"
+	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/crypt.sh"
+	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/lvm.sh"
 )
 
 ENV="https://raw.githubusercontent.com/forflo/archfai/master/src/env.conf"
