@@ -87,7 +87,7 @@ is_start(){
 	is_download
 	is_startStrapping || {
 		echo Could not execute inistrap
-		is_clean
+		#is_clean
 		exit 1
 	}
 	is_clean
