@@ -2,46 +2,46 @@
 
 . env.conf
 
-bs_format(){
-	fdisk $BS_DISK <<EOF || return 1
-o
-n
-p
-1
-
-+230G
-n
-p
-2
-
-
-w
-EOF
-
+bs_part(){
+	for ((i=0; i<${#BS_PARTCMDS[*]}; i++}; do
+		${BS_PARTCMDS[i]} || {
+			echo error in command
+			echo ${BS_PARTCMDS[i]}
+			return 1
+		}
+	done
+	
+	for i in $CS_HOOKS; do
+		echo running hook $i
+		
+	done
 	return 0
 }
 
 bs_mkfs(){
-	mkfs.ext4 ${BS_DISK}1 || return 1
-	mkfs.ext4 ${BS_DISK}2 || return 1
+	for ((i=0; i<${#BS_FILESYS[*]}; i++)); do
+		${BS_FILESYS[i]} || {
+			echo error in command
+			echo ${BS_FILESYS[i]}
+			return 1
+		}
+	done
 	return 0
 }
 
 bs_mount(){
-	mount ${BS_DISK}1 /mnt || return 1
-
-	mkdir /mnt/boot || return 1
-	mount ${BS_DISK}2 /mnt/boot || return 1
+	for ((i=0; i<${#BS_MOUNT[*]}; i++)); do
+		${BS_MOUNT[i]} || {
+			echo error in command
+			echo "${BS_MOUNT[i]}"
+			return 1
+		}
+	done
 	return 0
 }
 
 bs_selMirror(){
-	echo $BS_MIRROR > /etc/pacman.d/mirrorlist
-	return 0
-}
-
-bs_selMirrorDyn(){
-	curl -o /etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=DE&protocol=http&ip_version=4' || return 1
+	curl -o /etc/pacman.d/mirrorlist "$BS_MIRRORLINK" || return 1
 	mv /etc/pacman.d/mirrorlist /etc/pacman.d/old
 	cut -c 2- /etc/pacman.d/old > /etc/pacman.d/mirrorlist
 	rm /etc/pacman.d/old
@@ -60,9 +60,7 @@ bs_genFstab(){
 
 bs_finish(){
 	echo finished installing your base system.
-	echo now execute
-	echo "$ arch-chroot /mnt /bin/bash"
-	echo and run the second installer script
+	echo now chrootstrapping starts
 }
 
 bs_cleanup(){
@@ -70,40 +68,24 @@ bs_cleanup(){
 }
 
 install(){
-	bs_format || {
-		echo could not format the disks
-		return 1
-	}
-	bs_mkfs || {
-		echo could not create filesystems
-		return 1
-	}
-	bs_mount || {
-		echo could not mount the filesystems
-		return 1
-	}
-	if [ $BS_MIRRORDYN -eq 1 ]; then
-		echo select mirror dynamically
-		bs_selMirrorDyn || {
-			echo could not create the mirrorlist dynamically
+	# insert hooks
+	for i in $CS_HOOKS; do
+		[ -f lvm ] && {
+			echo loading hook $i
+			. ${i}.sh
+		} || {
+			echo could not find the hook
 			return 1
 		}
-	else
-		echo select mirror statically
-		bs_selMirror || {
-			echo could not create the mirrorlist
+	done
+
+	for i in $CS_ORDER; do
+		echo Running function $i
+		${i} || {
+			echo function $i failed
 			return 1
 		}
-	fi
-	bs_instBaseSys || {
-		echo could not install the base system using pacman
-		return 1
-	}
-	bs_genFstab || {
-		echo could not generate the fstab file
-		return 1
-	}
-	bs_finish
+	done
 	return 0
 }
 
