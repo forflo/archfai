@@ -7,6 +7,9 @@ IS_LINKS=(
 
 ENV="https://raw.githubusercontent.com/forflo/archfai/master/src/env.conf"
 
+##
+# Downloads the needed scripts
+##
 is_download(){
 	for ((i=0; i<${#IS_LINKS[*]}; i++)); do
 		echo Downloading ${IS_LINKS[$i]}
@@ -30,10 +33,12 @@ is_download(){
 		return 1
 	}
 
-
 	return 0
 }
 
+##
+# Runs every
+##
 is_startStrapping(){
 	bash -- step_0 || {
 		echo Initial Bootstrapping failed
@@ -51,6 +56,9 @@ is_startStrapping(){
 	return 0
 }
 
+##
+# Deletes each downloaded file
+##
 is_clean(){
 	for ((i=0; i<${#IS_LINKS[*]}; i++)); do
 		rm step_$i > /dev/null 2>&1 || {
@@ -61,6 +69,9 @@ is_clean(){
 	return 0
 }
 
+##
+# Starting point
+##
 is_start(){
 	is_download
 	is_startStrapping || {
