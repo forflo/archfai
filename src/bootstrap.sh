@@ -7,7 +7,7 @@
 # every command that's inside of it
 ##
 bs_part(){
-	for ((i=0; i<${#BS_PARTCMDS[*]}; i++}; do
+	for ((i=0; i<${#BS_PARTCMDS[*]}; i++)); do
 		${BS_PARTCMDS[i]} || {
 			echo error in command
 			echo ${BS_PARTCMDS[i]}
