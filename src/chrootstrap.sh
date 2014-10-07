@@ -3,27 +3,53 @@
 . env.conf
 
 cs_configLocale(){
-	sed --in-place -e "s/^#${CS_LOCPRE}\\(.*\\)/${CS_LOCPRE}\\1/g" ${CS_LOCFILE} || return 1
-	sed --in-place -e "s/^#${CS_SYSLOC}\\(.*\\)/${CS_SYSLOC}\\1/g" ${CS_LOCFILE} || return 1
-	locale-gen || return 1
+	clog 2 "[cs_configLocale()]" Uncommenting specified lines in ${CS_LOCFILE}.
+	sed --in-place -e "s/^#${CS_LOCPRE}\\(.*\\)/${CS_LOCPRE}\\1/g" ${CS_LOCFILE} || {
+		clog 1 "[cs_configLocale()]" Uncommenting failed!
+		return 1
+	}
+	sed --in-place -e "s/^#${CS_SYSLOC}\\(.*\\)/${CS_SYSLOC}\\1/g" ${CS_LOCFILE} || {
+		clog 1 "[cs_configLocale()]" Uncommenting failed!
+		return 1
+	}
+	
+	clog 2 "[cs_configLocale()]" Generating locales.
+	locale-gen || {
+		clog 1 "[cs_configLocale()]" Generation failed!
+		return 1
+	}
 	echo LANG=${CS_SYSLOC} > ${CS_LOCCONF}
 	export LANG=${CS_SYSLOC}
+	
 	return 0
 }
 
 cs_configConsoleFont(){
+	clog 2 "[cs_configConsoleFont()]" Configuring console font.
 	echo "KEYMAP=de-latin1" >> /etc/vconsole.conf
 	echo "FONT=lat9w-16" >> /etc/vconsole.conf
+	
 	return 0
 }
 
 cs_configTime(){
-	ln -s /usr/share/zoneinfo/${CS_TIMEZONE} /etc/localtime || return 1
-	hwclock --systohc --utc || return 1
+	clog 2 "[cs_configTime()]" Configuring time.
+
+	ln -s /usr/share/zoneinfo/${CS_TIMEZONE} /etc/localtime || {
+		clog 1 "[cs_configTime()]" Setting time zone failed!
+		return 1
+	}
+	hwclock --systohc --utc || {
+		clog 1 "[cs_configTime()]" Setting hardware clock failed!
+		return 1
+	}
+	
 	return 0
 }
 
 cs_setHost(){
+	clog 2 "[cs_setHost()]" Setting hostname.
+
 	echo ${CS_HOSTNAME} > /etc/hostname
 	cat > /etc/hosts << EOF
 #
@@ -36,9 +62,14 @@ cs_setHost(){
 
 # End of file
 EOF
+
+	return 0
 }
 
+# TODO: see TODO
 cs_configNetwork(){
+	clog 2 "[cs_configNetwork()]" Setting network configuration.
+
 	if [ ${CS_WIRED} -eq 0 ]; then
 		systemctl enable dhcpcd@${CS_WDEV}.service || return 1
 	else
@@ -48,64 +79,87 @@ cs_configNetwork(){
 }
 
 cs_makeInitRd(){
-	mkinitcpio -p linux || return 1
+	clog 2 "[cs_makeInitRd()]" Recreate init ramdisk environment.
+	
+	mkinitcpio -p linux || {
+		clog 1 "[cs_makeInitRd()]" Recreation failed!
+		return 1
+	}
+	
 	return 0
 }
 
 cs_configBootloader(){
-	pacman -S grub || return 1
-	grub-install --target=i386-pc --recheck /dev/sda || return 1
-	grub-mkconfig -o /boot/grub/grub.cfg || return 1
+	clog 2 "[cs_configBootloader()]" Install and configure bootloader.
+
+	pacman -S grub || {
+		clog 1 "[cs_configBootloader()]" Package installation failed!
+		return 1
+	}
+	grub-install --target=i386-pc --recheck /dev/sda || {
+		clog 1 "[cs_configBootloader()]" Bootloader installation failed!
+		return 1
+	}
+	grub-mkconfig -o /boot/grub/grub.cfg || {
+		clog 1 "[cs_configBootloader()]" Bootloader configuration failed!
+		return 1
+	}
+	
 	return 0
 }
 
 cs_installProgs(){
+	clog 2 "[cs_installProgs()]" Install useful packages!
+
 	for i in ${CS_PROGS[*]}; do
+		clog 2 "[cs_installProgs()]" Install package ${i}
+
 		pacman -S --noconfirm $i || {
-			echo could not install package $i
+			clog 1 cs_install could not install package $i
 			return 1
 		}
 	done
+	
 	return 0
 }
 
 cs_install(){
 	cs_configLocale || {
-		echo Could not configurate the locale
+		clog 1 "[cs_install]" Could not configurate the locale!
 		return 1
 	}
 	cs_configConsoleFont || {
-		echo Could not change the console font
+		clog 1 "[cs_install]" Could not change the console font!
 		return 1
 	}
 	cs_configTime || {
-		echo Could not configure the time
+		clog 1 "[cs_install]" Could not configure the time!
 		return 1
 	}
 	cs_setHost || {
-		echo Could not set Hostname
+		clog 1 "[cs_install]" Could not set Hostname!
 		return 1
 	}
 	cs_configNetwork || {
-		echo Could not configure the network
+		clog 1 "[cs_install]" Could not configure the network!
 		return 1
 	}
 	cs_makeInitRd || {
-		echo Could not recreate the initial ramdisk
+		clog 1 "[cs_install]" Could not recreate the initial ramdisk!
 		return 1
 	}
 	cs_configBootloader || {
-		echo Could neither install nor configure the bootloader
+		clog 1 "[cs_install]" Could neither install nor configure the bootloader!
 		return 1
 	}
 	cs_installProgs || {
-		echo Could not install required progs
+		clog 1 "[cs_install]" Could not install required progs!
 		return 1
 	}
 }
 
 cs_install || {
-	echo Chbootstrap failed
+	clog 1 "[cs_install]" Chrootstrap failed!
 	exit 1
 }
 

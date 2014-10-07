@@ -98,6 +98,8 @@ bs_genFstab(){
 		clog 1 "[bs_instBaseSys()]" Generation of the fstab file failed!
 		return 1
 	}
+	
+	return 0
 }
 
 ##
@@ -106,6 +108,8 @@ bs_genFstab(){
 bs_finish(){
 	echo finished installing your base system.
 	echo now chrootstrapping starts
+	
+	return 0
 }
 
 ##
