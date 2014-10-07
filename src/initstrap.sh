@@ -22,19 +22,19 @@ ENV="https://raw.githubusercontent.com/forflo/archfai/master/src/env.conf"
 is_loadEnv(){
 	echo Downloading env file $ENV
 	curl -o env.conf -L $ENV > /dev/null 2>&1 || {
-		echo Download failed! ...
+		echo Download failed!
 		return 1
 	}
 	
 	chmod 750 env.conf || {
-		echo Chmod failed
+		echo Chmod failed1
 		return 1
 	}
 	
 	echo Load env.conf...
 	. env.conf
 	
-	clog 2 "[is_loadEnv()]" Loading finished successfully
+	clog 2 "[is_loadEnv()]" Loading finished successfully.
 	
 	return 0
 }
@@ -46,17 +46,17 @@ is_download(){
 	for ((i=0; i<${#IS_LINKS[*]}; i++)); do
 		clog 2 "[is_download()]" Downloading ${IS_LINKS[$i]:0:20} ...
 		curl -o ${IS_NAMES[i]} -L ${IS_LINKS[$i]} > /dev/null 2>&1 || {
-			clog 1 "[is_download()]" Download of file ${IS_NAMES[i]} failed! ...
+			clog 1 "[is_download()]" Download of file ${IS_NAMES[i]} failed!
 			return 1
 		}
 		
 		chmod 750 ${IS_NAMES[i]} || {
-			clog 1 "[is_download()]" Chmod failed
+			clog 1 "[is_download()]" Chmod failed!
 			return 1
 		}
 	done
 	
-	clog 2 "[is_download()]" Finished all downloads successfully
+	clog 2 "[is_download()]" Finished all downloads successfully.
 
 	return 0
 }
@@ -68,7 +68,7 @@ is_startStrapping(){
 	clog 2 "[is_startStrappig()]" Starting ${IS_NAMES[0]}
 
 	bash -- ${IS_NAMES[0]} || {
-		clog 1 "[is_startStrapping()]" Initial Bootstrapping failed
+		clog 1 "[is_startStrapping()]" Initial Bootstrapping failed!
 		return 1
 	}
 
@@ -80,7 +80,7 @@ is_startStrapping(){
 	
 	clog 2 "[is_startStrapping()]" Starting ${IS_NAMES[1]}
 	cat ${IS_NAMES[1]} | arch-chroot /mnt/ /bin/bash || {
-		clog 1 "[is_startStrapping()]" Arch-chroot strapping failed
+		clog 1 "[is_startStrapping()]" Arch-chroot strapping failed!
 		return 1
 	}
 	
@@ -120,15 +120,15 @@ is_start(){
 		exit 1
 	}
 	is_startStrapping || {
-		clog 1  "[is_start()]" Could not start bootstrapping
+		clog 1  "[is_start()]" Could not start bootstrapping.
 		is_clean || {
-			clog 1 "[is_start()]" Could not clean environment
+			clog 1 "[is_start()]" Could not clean environment.
 			exit 1
 		}
 		exit 1
 	}
 	is_clean || {
-		clog 1 "[is_start()]" Could not clean environment
+		clog 1 "[is_start()]" Could not clean environment.
 		exit 1
 	}
 	exit 0
