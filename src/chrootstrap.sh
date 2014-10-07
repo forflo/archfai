@@ -2,6 +2,9 @@
 
 . env.conf
 
+##
+# Configures the system wide locale settings
+##
 cs_configLocale(){
 	clog 2 "[cs_configLocale()]" Uncommenting specified lines in ${CS_LOCFILE}.
 	sed --in-place -e "s/^#${CS_LOCPRE}\\(.*\\)/${CS_LOCPRE}\\1/g" ${CS_LOCFILE} || {
@@ -24,6 +27,9 @@ cs_configLocale(){
 	return 0
 }
 
+##
+# Remove magic values
+##
 cs_configConsoleFont(){
 	clog 2 "[cs_configConsoleFont()]" Configuring console font.
 	echo "KEYMAP=de-latin1" >> /etc/vconsole.conf
@@ -32,6 +38,9 @@ cs_configConsoleFont(){
 	return 0
 }
 
+##
+# Configures the time zone and sets the hardware clock
+##
 cs_configTime(){
 	clog 2 "[cs_configTime()]" Configuring time.
 
@@ -47,6 +56,9 @@ cs_configTime(){
 	return 0
 }
 
+##
+# Overrides the /etc/hosts file
+##
 cs_setHost(){
 	clog 2 "[cs_setHost()]" Setting hostname.
 
@@ -66,7 +78,9 @@ EOF
 	return 0
 }
 
-# TODO: see TODO
+##
+# TODO: provide network config hook
+##
 cs_configNetwork(){
 	clog 2 "[cs_configNetwork()]" Setting network configuration.
 
@@ -78,6 +92,9 @@ cs_configNetwork(){
 	return 0
 }
 
+##
+# TODO: provide init rd configuration hook
+##
 cs_makeInitRd(){
 	clog 2 "[cs_makeInitRd()]" Recreate init ramdisk environment.
 	
@@ -89,6 +106,7 @@ cs_makeInitRd(){
 	return 0
 }
 
+# TODO: remove magic value
 cs_configBootloader(){
 	clog 2 "[cs_configBootloader()]" Install and configure bootloader.
 
@@ -108,6 +126,10 @@ cs_configBootloader(){
 	return 0
 }
 
+##
+# Traverses the CS_PROGS and installs
+# every program that's listed there
+##
 cs_installProgs(){
 	clog 2 "[cs_installProgs()]" Install useful packages!
 
@@ -124,38 +146,15 @@ cs_installProgs(){
 }
 
 cs_install(){
-	cs_configLocale || {
-		clog 1 "[cs_install]" Could not configurate the locale!
-		return 1
-	}
-	cs_configConsoleFont || {
-		clog 1 "[cs_install]" Could not change the console font!
-		return 1
-	}
-	cs_configTime || {
-		clog 1 "[cs_install]" Could not configure the time!
-		return 1
-	}
-	cs_setHost || {
-		clog 1 "[cs_install]" Could not set Hostname!
-		return 1
-	}
-	cs_configNetwork || {
-		clog 1 "[cs_install]" Could not configure the network!
-		return 1
-	}
-	cs_makeInitRd || {
-		clog 1 "[cs_install]" Could not recreate the initial ramdisk!
-		return 1
-	}
-	cs_configBootloader || {
-		clog 1 "[cs_install]" Could neither install nor configure the bootloader!
-		return 1
-	}
-	cs_installProgs || {
-		clog 1 "[cs_install]" Could not install required progs!
-		return 1
-	}
+	for i in $CS_ORDER; do
+		clog 2 "[cs_install()]" Running function $i.
+		${i} || {
+			clog 1 "[cs_install()]" Function $i failed!
+			return 1
+		}
+	done
+	
+	return 0
 }
 
 cs_install || {

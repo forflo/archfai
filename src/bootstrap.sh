@@ -146,9 +146,9 @@ install(){
 	done
 
 	for i in $BS_ORDER; do
-		clog 2 "[install()]" Running function $i
+		clog 2 "[install()]" Running function $i.
 		${i} || {
-			clog 1 "[install()]" function $i failed
+			clog 1 "[install()]" Function $i failed!
 			return 1
 		}
 	done
