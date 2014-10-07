@@ -5,7 +5,7 @@ Archfai stands for Archlinux fully automatic installation. This little project
 aims to provide a shell script package specific for archlinux which makes it
 possible to automate the complete installation process with just one command.
 "One command" means just **one command**!! No mounting of additional removable
-media and no curl orgies, just one command.
+media and no curl orgies needed, just one command.
 
 Usage
 =====
