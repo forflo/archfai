@@ -5,5 +5,6 @@
 # in this function.
 ##
 lvm_hook(){
+	clog 2 "lvm_hook()" doing lvm things
 	:
 }
