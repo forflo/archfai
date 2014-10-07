@@ -51,14 +51,14 @@ is_download(){
 # Runs every
 ##
 is_startStrapping(){
-	bash -- step_0 || {
+	bash -- step_0.sh || {
 		echo Initial Bootstrapping failed
 		return 1
 	}
 
 	# copy env to chroot-environment
 	cp env.conf /mnt/ || return 1
-	arch-chroot /mnt/ /bin/bash < step_1 || {
+	arch-chroot /mnt/ /bin/bash < step_1.sh || {
 		echo Arch-chroot strapping failed
 		return 1
 	}
