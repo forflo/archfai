@@ -9,19 +9,20 @@
 bs_part(){
 	for ((i=0; i<${#BS_PARTCMDS[*]}; i++)); do
 		${BS_PARTCMDS[i]} || {
-			echo error in command
-			echo ${BS_PARTCMDS[i]}
+			clog 1 "[bs_part()]" error in command":"
+			clog 1 "[bs_part()]    " ${BS_PARTCMDS[i]}
 			return 1
 		}
 	done
 	
 	for i in $CS_HOOKS; do
-		echo running hook function $i
+		clog 2 "[bs_part()]" running hook function: $i
 		${i} || {
-			echo hook $i failed
+			clog 1 "[bs_part()]" hook $i failed
 			return 1
 		}
 	done
+	
 	return 0
 }
 
@@ -32,11 +33,12 @@ bs_part(){
 bs_mkfs(){
 	for ((i=0; i<${#BS_FILESYS[*]}; i++)); do
 		${BS_FILESYS[i]} || {
-			echo error in command
-			echo ${BS_FILESYS[i]}
+			clog 2 "[bs_mkfs()]" error in command":"
+			clog 2 "[bs_mkfs()]    " ${BS_FILESYS[i]}
 			return 1
 		}
 	done
+
 	return 0
 }
 

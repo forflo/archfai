@@ -17,22 +17,9 @@ IS_NAMES=(
 ENV="https://raw.githubusercontent.com/forflo/archfai/master/src/env.conf"
 
 ##
-# Downloads the needed scripts
+# Load environment
 ##
-is_download(){
-	for ((i=0; i<${#IS_LINKS[*]}; i++)); do
-		echo Downloading ${IS_LINKS[$i]}
-		curl -o ${IS_NAMES[i]} -L ${IS_LINKS[$i]} > /dev/null 2>&1 || {
-			echo Download failed! ...
-			return 1
-		}
-		
-		chmod 750 ${IS_NAMES[i]} || {
-			echo Chmod failed
-			return 1
-		}
-	done
-
+is_loadEnv(){
 	echo Downloading env file $ENV
 	curl -o env.conf -L $ENV > /dev/null 2>&1 || {
 		echo Download failed! ...
@@ -43,27 +30,55 @@ is_download(){
 		echo Chmod failed
 		return 1
 	}
+	
+	echo Load env.conf...
+	. env.conf
+	
+	clog 2 "[is_loadEnv()]" Loading finished successfully
+	
+	return 0
+}
+
+##
+# Downloads the needed scripts
+##
+is_download(){
+	for ((i=0; i<${#IS_LINKS[*]}; i++)); do
+		clog 2 "[is_download()]" Downloading ${IS_LINKS[$i]:0:20} ...
+		curl -o ${IS_NAMES[i]} -L ${IS_LINKS[$i]} > /dev/null 2>&1 || {
+			clog 1 "[is_download()]" Download of file ${IS_NAMES[i]} failed! ...
+			return 1
+		}
+		
+		chmod 750 ${IS_NAMES[i]} || {
+			clog 1 "[is_download()]" Chmod failed
+			return 1
+		}
+	done
 
 	return 0
 }
 
 ##
-# Runs every
+# Runs the bootstrapping files
 ##
 is_startStrapping(){
 	bash -- ${BS_NAMES[0]} || {
-		echo Initial Bootstrapping failed
+		clog 1 "[is_startStrapping()]" Initial Bootstrapping failed
 		return 1
 	}
 
 	# copy env to chroot-environment
-	cp env.conf /mnt/ || return 1
+	cp env.conf /mnt/ || {
+		clog 1 "[is_startStrapping()]" Could not copy env.conf to /mnt
+		return 1
+	}
+	
 	cat ${BS_NAMES[1]} | arch-chroot /mnt/ /bin/bash || {
-		echo Arch-chroot strapping failed
+		clog 1 "[is_startStrapping()]" Arch-chroot strapping failed
 		return 1
 	}
 
-	rm /mnt/env.conf || return 1
 	return 0
 }
 
@@ -73,13 +88,13 @@ is_startStrapping(){
 is_clean(){
 	for ((i=0; i<${#IS_NAMES[*]}; i++)); do
 		rm ${IS_NAMES[i]} > /dev/null 2>&1 || {
-			echo Deletion of step_$i failed
+			clog 1 "[is_clean()]" Deletion of ${IS_NAMES[i]} failed!
 			return 1 
 		}
 	done
 	
 	rm env.conf > /dev/null 2>&1 || {
-		echo Deletion of env.conf failed
+		clog 1 "[is_clean()]" Deletion of env.conf failed!
 		return 1
 	}
 	return 0
@@ -89,13 +104,26 @@ is_clean(){
 # Starting point
 ##
 is_start(){
-	is_download
-	is_startStrapping || {
-		echo Could not execute inistrap
-		is_clean
+	is_loadEnv || {
+		clog 1 "[is_start()]" Could not download environment file.
 		exit 1
 	}
-	is_clean
+	is_download || {
+		clog 1 "[is_start()]" Could not download bootstrapping files.
+		exit 1
+	}
+	is_startStrapping || {
+		clog 1  "[is_start()]" Could not start bootstrapping
+		is_clean || {
+			clog 1 "[is_start()]" Could not clean environment
+			exit 1
+		}
+		exit 1
+	}
+	is_clean || {
+		clog 1 "[is_start()]" Could not clean environment
+		exit 1
+	}
 	exit 0
 }
 
