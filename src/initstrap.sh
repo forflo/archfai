@@ -80,18 +80,19 @@ is_download(){
 # Runs the bootstrapping files
 ##
 is_startStrapping(){
+	env_loadHooks "[is_start()]"
+	
 	clog 2 "[is_startStrappig()]" Loading ${IS_NAMES[0]}
 	. ${IS_NAMES[0]}
+	
+	clog 2 "[is_startStrapping()]" Loading ${IS_NAMES[1]}
+	. ${IS_NAMES[1]}
 	
 	# bs_install is the function that's been sourced by IS_NAMES[0]
 	bs_install || {
 		clog 1 "[bs_install()]" Script bootstrap failed!
-		bs_cleanup
 		return 1
 	}
-	
-	clog 2 "[is_startStrapping()]" Loading ${IS_NAMES[1]}
-	. ${IS_NAMES[1]}
 	
 	cs_install || {
 		clog 1 "[cs_install]" Chrootstrap failed!
@@ -130,7 +131,6 @@ is_start(){
 		exit 1
 	}
 	
-	env_loadHooks "[is_start()]"
 
 	is_download || {
 		clog 1 "[is_start()]" Could not download bootstrapping files.
