@@ -15,6 +15,7 @@ crypt_hook(){
 	while :; do
 		read -s -p ">>> " pwd1 < $terminal
 		echo please repeat!
+		echo debug: $pwd1
 		read -s -p ">>> " pwd2 < $terminal
 		[ "$pwd1" != "$pwd2" ] && {
 			clog 1 "[crypt_hook()]" Your passwords are not equal
