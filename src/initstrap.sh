@@ -17,7 +17,7 @@ IS_NAMES=(
 	"lvm_hook"
 	"fstab_hook"
 	"net_hook"
-	"initrd"
+	"initrd_hook"
 )
 
 ENV="https://raw.githubusercontent.com/forflo/archfai/master/src/env.conf"

@@ -143,7 +143,7 @@ install(){
 	for i in $HOOKS; do
 		[ -f $i ] && {
 			clog 2 "[install()]" Loading hook $i.
-			. ${i} || {
+			${i} || {
 				clog 1 "[install()]" Loading of hook $i failed!
 				return 1
 			}
