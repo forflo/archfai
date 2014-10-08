@@ -8,6 +8,7 @@
 crypt_hook(){
 	local crypt_device="cryptroot"
 	local load_keys="de"
+	local terminal="/dev/tty1"
 	
 	clog 2 "[crypt_hook()]" Doing cryptsetup with LUKS.
 	clog 2 "[crypt_hook()]" Please provide your password.
@@ -15,7 +16,7 @@ crypt_hook(){
 	clog 2 "[crypt_hook()]" The current keyboard layout will be set to $load_keys
 	
 	echo $(tty)
-	loadkeys --console=$(tty) de || {
+	loadkeys --console=${terminal} de || {
 		clog 1 "[crypt_hook()]" Loadkeys failed!
 		return 1
 	}
