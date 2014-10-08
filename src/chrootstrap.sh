@@ -131,6 +131,13 @@ cs_configBootloader(){
 		clog 1 "[cs_configBootloader()]" Bootloader installation failed!
 		return 1
 	}
+	
+	clog 2 "[cs_configBootloader()]" Running bootloader configuration hook
+	boot_hook || {
+		clog 1 "[cs_configBootloader()]" boot_hook failed!
+		return 1
+	}
+	
 	grub-mkconfig -o /boot/grub/grub.cfg || {
 		clog 1 "[cs_configBootloader()]" Bootloader configuration failed!
 		return 1

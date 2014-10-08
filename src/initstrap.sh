@@ -15,6 +15,7 @@ IS_LINKS=(
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/fstab.sh"
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/net.sh"
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/initrd.sh"
+	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/boot.sh"
 )
 
 IS_NAMES=(
@@ -24,7 +25,8 @@ IS_NAMES=(
 	"lvm_hook"
 	"fstab_hook"
 	"net_hook"
-	"initrd"
+	"initrd_hook"
+	"boot_hook"
 )
 
 ENV="https://raw.githubusercontent.com/forflo/archfai/master/src/env.conf"
