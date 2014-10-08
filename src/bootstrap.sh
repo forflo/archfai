@@ -9,7 +9,7 @@
 bs_part(){
 	for ((i=0; i<${#BS_PARTCMDS[*]}; i++)); do
 		clog 2 "[bs_part()]" Running partition command: ${BS_PARTCMDS[i]:0:20} "..."
-		${BS_PARTCMDS[i]} || {
+		eval "${BS_PARTCMDS[i]}" || {
 			clog 1 "[bs_part()]" error in command":"
 			clog 1 "[bs_part()]    " ${BS_PARTCMDS[i]}
 			return 1
@@ -35,7 +35,7 @@ bs_mkfs(){
 	for ((i=0; i<${#BS_FILESYS[*]}; i++)); do
 		clog 2 "[bs_mkfs()]" Running filesystem command":" 
 		clog 2 "[bs_mkfs()]    " ${BS_FILESYS[i]} "..."
-		${BS_FILESYS[i]} || {
+		eval "${BS_FILESYS[i]}" || {
 			clog 1 "[bs_mkfs()]" error in command":"
 			clog 1 "[bs_mkfs()]    " ${BS_FILESYS[i]}
 			return 1
@@ -52,7 +52,7 @@ bs_mount(){
 	for ((i=0; i<${#BS_MOUNT[*]}; i++)); do
 		clog 2 "[bs_mount()]" Running mount command":" 
 		clog 2 "[bs_mount()]    " ${BS_MOUNT[i]} "..."
-		${BS_MOUNT[i]} || {
+		eval "${BS_MOUNT[i]}" || {
 			clog 1 "[bs_mount]" error in command
 			clog 1 "[bs_mount]    " "${BS_MOUNT[i]}"
 			return 1
