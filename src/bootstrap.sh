@@ -143,7 +143,7 @@ install(){
 	for i in $HOOKS; do
 		[ -f $i ] && {
 			clog 2 "[install()]" Loading hook $i.
-			${i} || {
+			. ${i} || {
 				clog 1 "[install()]" Loading of hook $i failed!
 				return 1
 			}
@@ -151,7 +151,7 @@ install(){
 			clog 1 "[install()]" Invalid file name of hook: $i.
 			clog 2 "[install()]" Will create dummy hook function for $i.
 			eval "${i}(){ :; }"
-			return 1
+			# every thing is fine. No return 1 necessary
 		}
 	done
 	clog 2 "[install()]" Inserting hooks finished successfully!
