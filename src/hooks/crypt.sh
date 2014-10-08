@@ -7,15 +7,15 @@
 ##
 crypt_hook(){
 	local crypt_device="cryptroot"
-	local keyfile="temp"
+	local terminal="/dev/tty1"
 	
 	clog 2 "[crypt_hook()]" Doing cryptsetup with LUKS.
 	clog 2 "[crypt_hook()]" Please provide your password.
 	
 	while :; do
-		read -s pwd1
+		read -s -p ">>> " pwd1 < $terminal
 		echo please repeat!
-		read -s pwd2
+		read -s -p ">>> " pwd2 < $terminal
 		[ "$pwd1" != "$pwd2" ] && {
 			clog 1 "[crypt_hook()]" Your passwords are not equal
 			continue
