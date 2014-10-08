@@ -8,7 +8,7 @@
 ##
 bs_part(){
 	for ((i=0; i<${#BS_PARTCMDS[*]}; i++)); do
-		clog 2 "[bs_part()]" Running partition command ${BS_PARTCMDS[i]:0:20} "..."
+		clog 2 "[bs_part()]" Running partition command: ${BS_PARTCMDS[i]:0:20} "..."
 		${BS_PARTCMDS[i]} || {
 			clog 1 "[bs_part()]" error in command":"
 			clog 1 "[bs_part()]    " ${BS_PARTCMDS[i]}
