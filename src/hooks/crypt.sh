@@ -7,17 +7,9 @@
 ##
 crypt_hook(){
 	local crypt_device="cryptroot"
-	local load_keys="de"
 	
 	clog 2 "[crypt_hook()]" Doing cryptsetup with LUKS.
 	clog 2 "[crypt_hook()]" Please provide your password.
-	clog 2 "[crypt_hook()]" Note, however, that you have to terminate with Ctrl-D instead of "\n"
-	clog 2 "[crypt_hook()]" The current keyboard layout will be set to $load_keys
-	
-	loadkeys --console=$(tty) de || {
-		clog 1 "[crypt_hook()]" Loadkeys failed!
-		return 1
-	}
 	
 	# requires the user to break the unattendedness of this script package
 	cryptsetup --verbose --key-size=512\
