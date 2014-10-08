@@ -79,7 +79,7 @@ EOF
 }
 
 ##
-# TODO: provide network config hook
+# Provides network specific configuratioin
 ##
 cs_configNetwork(){
 	clog 2 "[cs_configNetwork()]" Setting network configuration.
@@ -89,6 +89,13 @@ cs_configNetwork(){
 	else
 		systemctl enable dhcpcd@${CS_EDEV}.service || return 1
 	fi
+	
+	clog 2 "[cs_configNetwork]" Running net_hook.
+	net_hook || {
+		clog 1 "[cs_configNetwork]" net_hook failed!
+		return 1
+	}
+	
 	return 0
 }
 
@@ -100,6 +107,12 @@ cs_makeInitRd(){
 	
 	mkinitcpio -p linux || {
 		clog 1 "[cs_makeInitRd()]" Recreation failed!
+		return 1
+	}
+	
+	clog 2 "[cs_makeInitRd]" Running initrd_hook.
+	initrd_hook || {
+		clog 1 "[cs_makeInitRd]" initrd_hook failed!
 		return 1
 	}
 	
