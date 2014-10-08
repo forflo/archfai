@@ -3,7 +3,8 @@
 # Hook for configuring the bootloader
 ##
 boot_hook(){
-	local dev_uuid=$(lsblk --output "NAME,UUID" | grep ${BS_SP:5:4} | awk '{print $2}')
+	local partnum="1"
+	local dev_uuid=$(lsblk --output "NAME,UUID" | grep ${BS_DISK}${partnum} | awk '{print $2}')
 	
 	[ "${dev_uuid}" = "" ] && {
 		clog 1 "[boot_hook]" Could not query the UUID for ${BS_SP:5:4}
