@@ -14,7 +14,7 @@ crypt_hook(){
 	clog 2 "[crypt_hook()]" Note, however, that you have to terminate with Ctrl-D instead of "\n"
 	clog 2 "[crypt_hook()]" The current keyboard layout will be set to $load_keys
 	
-	loadkeys de || {
+	loadkeys --console $(tty) de || {
 		clog 1 "[crypt_hook()]" Loadkeys failed!
 		return 1
 	}

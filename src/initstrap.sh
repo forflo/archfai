@@ -111,7 +111,7 @@ is_startStrapping(){
 		return 1
 	}
 	
-	clog 2 "[is_startStrapping()]" Finished bootstrapping! "You're good to go!"
+	flog 2 bold blink "[is_startStrapping()]" Finished bootstrapping! "You're good to go!"
 
 	return 0
 }

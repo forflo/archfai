@@ -141,7 +141,6 @@ bs_install(){
 	# insert hooks
 	env_loadHooks "bs_install"
 
-
 	for i in $BS_ORDER; do
 		clog 2 "[bs_install()]" Running function $i.
 		${i} || {
