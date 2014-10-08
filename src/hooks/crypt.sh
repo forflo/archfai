@@ -7,12 +7,25 @@
 ##
 crypt_hook(){
 	local crypt_device="cryptroot"
+	local keyfile="temp"
 	
 	clog 2 "[crypt_hook()]" Doing cryptsetup with LUKS.
 	clog 2 "[crypt_hook()]" Please provide your password.
 	
+	while :; do
+		read -s pwd1
+		echo please repeat!
+		read -s pwd2
+		[ "$pwd1" != "$pwd2" ] && {
+			clog 1 "[crypt_hook()]" Your passwords are not equal
+			continue
+		} || {
+			break
+		}
+	done
+	
 	# requires the user to break the unattendedness of this script package
-	cryptsetup --verbose --key-size=512\
+	echo $pwd1 | cryptsetup --verbose --key-size=512\
 		--hash=sha512 --cipher=serpent-xts-plain64\
 		--key-file - --use-urandom luksFormat ${BS_SP} || {
 
