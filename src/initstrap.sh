@@ -5,6 +5,8 @@ IS_LINKS=(
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/chrootstrap.sh"
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/crypt.sh"
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/lvm.sh"
+	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/fstab.sh"
+	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/net.sh"
 )
 
 IS_NAMES=(
@@ -12,6 +14,8 @@ IS_NAMES=(
 	"chrootstrap"
 	"crypt_hook"
 	"lvm_hook"
+	"fstab_hook"
+	"net_hook"
 )
 
 ENV="https://raw.githubusercontent.com/forflo/archfai/master/src/env.conf"
@@ -77,6 +81,18 @@ is_startStrapping(){
 		clog 1 "[is_startStrapping()]" Could not copy env.conf to /mnt
 		return 1
 	}
+	for i in $HOOKS; do
+		[ -f $i ] && {
+			clog 2 "[is_startStrapping()]" Copying hook $i.
+			cp $i /mnt/ || {
+				clog 1 "[is_startStrapping()]" Copying failed!
+				return 1
+			}
+		} || {
+			clog 1 "[is_startStrapping()]" Invalid file name of hook: $i!
+			return 1
+		}
+	done
 	
 	clog 2 "[is_startStrapping()]" Starting ${IS_NAMES[1]}
 	cat ${IS_NAMES[1]} | arch-chroot /mnt/ /bin/bash || {

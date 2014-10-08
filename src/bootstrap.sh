@@ -16,7 +16,7 @@ bs_part(){
 		}
 	done
 	
-	for i in $CS_HOOKS; do
+	for i in crypt_hook lvm_hook; do
 		clog 2 "[bs_part()]" running hook function":" $i
 		${i} || {
 			clog 1 "[bs_part()]" hook $i failed
@@ -94,8 +94,14 @@ bs_instBaseSys(){
 ##
 bs_genFstab(){
 	clog 2 "[bs_genFstab()]" generating fstab...
-	genfstab -U -p /mnt >> /mnt/etc/fstab || { 
+	genfstab -U -p /mnt >> /mnt/etc/fstab || {
 		clog 1 "[bs_instBaseSys()]" Generation of the fstab file failed!
+		return 1
+	}
+	
+	clog 2 "[bs_genFstab]" Running hook: fstab_hook.
+	fstab_hook || {
+		clog 1 "[bs_genFstab]" Hook fstab_hook failed!
 		return 1
 	}
 	
@@ -135,12 +141,15 @@ install(){
 	# insert hooks
 	clog 2 "[install()]" Inserting hooks!
 
-	for i in $CS_HOOKS; do
+	for i in $HOOKS; do
 		[ -f $i ] && {
-			clog 2 "[install()]" loading hook $i
-			. ${i}
+			clog 2 "[install()]" Loading hook $i
+			. ${i} || {
+				clog 1 "[install()]" Loading of hook $i failed!
+				return 1
+			}
 		} || {
-			clog 1 "[install()]" could not find the hook
+			clog 1 "[install()]" Invalid file name of hook: $i.
 			return 1
 		}
 	done

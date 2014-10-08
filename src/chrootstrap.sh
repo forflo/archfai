@@ -146,6 +146,20 @@ cs_installProgs(){
 }
 
 cs_install(){
+	clog 2 "[cs_install()]" loading hooks.
+	for i in $HOOKS; do
+		[ -f $i ] && {
+			clog 2 "[cs_install()]" Loading hook $i.
+			. ${i} || {
+				clog 1 "[cs_install()]" Loading of hook $i failed!
+				return 1
+			}
+		} || {
+			clog 1 "[cs_install()]" Invalid file name of hook: $i!
+			return 1
+		}
+	done
+
 	for i in $CS_ORDER; do
 		clog 2 "[cs_install()]" Running function $i.
 		${i} || {
