@@ -10,7 +10,7 @@ crypt_hook(){
 	clog 2 "crypt_hook()" Doing cryptsetup with LUKS.
 	# requires the user to break the unattendedness of this script package
 	cryptsetup --verbose --key-size=512\
-		--hash=sha512 --cipher=serpent-xts-plain64 \
+		--hash=sha512 --cipher=serpent-xts-plain64\
 		--verify-passphrase --use-urandom luksFormat ${BS_SP} || {
 			
 		clog 1 "crypt_hook()" Cryptsetup failed!

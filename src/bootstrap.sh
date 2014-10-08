@@ -139,20 +139,22 @@ bs_cleanup(){
 ##
 install(){
 	# insert hooks
-	clog 2 "[install()]" Inserting hooks!
-
+	clog 2 "[install()]" Inserting hooks.
 	for i in $HOOKS; do
 		[ -f $i ] && {
-			clog 2 "[install()]" Loading hook $i
+			clog 2 "[install()]" Loading hook $i.
 			. ${i} || {
 				clog 1 "[install()]" Loading of hook $i failed!
 				return 1
 			}
 		} || {
 			clog 1 "[install()]" Invalid file name of hook: $i.
+			clog 2 "[install()]" Will create dummy hook function for $i.
+			eval "${i}(){ :; }"
 			return 1
 		}
 	done
+	clog 2 "[install()]" Inserting hooks finished successfully!
 
 	for i in $BS_ORDER; do
 		clog 2 "[install()]" Running function $i.
