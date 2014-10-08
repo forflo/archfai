@@ -1,6 +1,6 @@
-#!/bin/bash
-
-. env.conf
+##
+# Contains all steps before one has to chroot!
+##
 
 ##
 # Traverses the PART_CMD array and runs
@@ -138,8 +138,7 @@ bs_cleanup(){
 # program to your needs
 ##
 bs_install(){
-	# insert hooks
-	env_loadHooks "bs_install"
+
 
 	for i in $BS_ORDER; do
 		clog 2 "[bs_install()]" Running function $i.
@@ -151,9 +150,3 @@ bs_install(){
 	return 0
 }
 
-bs_install || {
-	clog 1 "[bs_install()]" Script bootstrap failed!
-	bs_cleanup
-	exit 1
-}
-exit 0

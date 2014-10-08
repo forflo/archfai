@@ -1,28 +1,32 @@
-#!/bin/bash
-
-. env.conf
+##
+# Contains operations that can only be
+# executed using arch-chroot
+##
 
 ##
 # Configures the system wide locale settings
 ##
 cs_configLocale(){
 	clog 2 "[cs_configLocale()]" Uncommenting specified lines in ${CS_LOCFILE}.
-	sed --in-place -e "s/^#${CS_LOCPRE}\\(.*\\)/${CS_LOCPRE}\\1/g" ${CS_LOCFILE} || {
+	
+	env_execChrootH << EOF
+	sed --in-place -e "s/^#${CS_LOCPRE}\\\\(.*\\\\)/${CS_LOCPRE}\\\\1/g" ${CS_LOCFILE} || {
 		clog 1 "[cs_configLocale()]" Uncommenting failed!
 		return 1
 	}
-	sed --in-place -e "s/^#${CS_SYSLOC}\\(.*\\)/${CS_SYSLOC}\\1/g" ${CS_LOCFILE} || {
+	sed --in-place -e "s/^#${CS_SYSLOC}\\\\(.*\\\\)/${CS_SYSLOC}\\\\1/g" ${CS_LOCFILE} || {
 		clog 1 "[cs_configLocale()]" Uncommenting failed!
 		return 1
 	}
+EOF
 	
 	clog 2 "[cs_configLocale()]" Generating locales.
-	locale-gen || {
+	env_execChroot locale-gen || {
 		clog 1 "[cs_configLocale()]" Generation failed!
 		return 1
 	}
-	echo LANG=${CS_SYSLOC} > ${CS_LOCCONF}
-	export LANG=${CS_SYSLOC}
+	env_execChroot echo LANG=${CS_SYSLOC} '>' ${CS_LOCCONF}
+	env_execChroot export LANG=${CS_SYSLOC}
 	
 	return 0
 }
@@ -32,8 +36,8 @@ cs_configLocale(){
 ##
 cs_configConsoleFont(){
 	clog 2 "[cs_configConsoleFont()]" Configuring console font.
-	echo "KEYMAP=de-latin1" >> /etc/vconsole.conf
-	echo "FONT=lat9w-16" >> /etc/vconsole.conf
+	env_execChroot echo "KEYMAP=de-latin1" '>>' /etc/vconsole.conf
+	env_execChroot echo "FONT=lat9w-16" '>>' /etc/vconsole.conf
 	
 	return 0
 }
@@ -44,11 +48,12 @@ cs_configConsoleFont(){
 cs_configTime(){
 	clog 2 "[cs_configTime()]" Configuring time.
 
-	ln -s /usr/share/zoneinfo/${CS_TIMEZONE} /etc/localtime || {
+	env_execChroot ln -s /usr/share/zoneinfo/${CS_TIMEZONE} /etc/localtime || {
 		clog 1 "[cs_configTime()]" Setting time zone failed!
 		return 1
 	}
-	hwclock --systohc --utc || {
+	
+	env_execChroot hwclock --systohc --utc || {
 		clog 1 "[cs_configTime()]" Setting hardware clock failed!
 		return 1
 	}
@@ -62,18 +67,9 @@ cs_configTime(){
 cs_setHost(){
 	clog 2 "[cs_setHost()]" Setting hostname.
 
-	echo ${CS_HOSTNAME} > /etc/hostname
-	cat > /etc/hosts << EOF
-#
-# /etc/hosts: static lookup table for host names
-#
-
-#<ip-address>	<hostname.domain.org>	<hostname>
-127.0.0.1	localhost.localdomain	localhost ${CS_HOSTNAME}
-::1		localhost.localdomain	localhost
-
-# End of file
-EOF
+	env_execChroot echo ${CS_HOSTNAME} '>' /etc/hostname
+	env_execChroot echo 127.0.0.1	localhost.localdomain	localhost ${CS_HOSTNAME} '>' /etc/hosts
+	env_execChroot echo ::1		localhost.localdomain	localhost '>>' /etc/hosts
 
 	return 0
 }
@@ -85,9 +81,9 @@ cs_configNetwork(){
 	clog 2 "[cs_configNetwork()]" Setting network configuration.
 
 	if [ ${CS_WIRED} -eq 0 ]; then
-		systemctl enable dhcpcd@${CS_WDEV}.service || return 1
+		env_execChroot systemctl enable dhcpcd@${CS_WDEV}.service || return 1
 	else
-		systemctl enable dhcpcd@${CS_EDEV}.service || return 1
+		env_execChroot systemctl enable dhcpcd@${CS_EDEV}.service || return 1
 	fi
 	
 	clog 2 "[cs_configNetwork]" Running net_hook.
@@ -104,30 +100,31 @@ cs_configNetwork(){
 ##
 cs_makeInitRd(){
 	clog 2 "[cs_makeInitRd()]" Recreate init ramdisk environment.
-	
-	mkinitcpio -p linux || {
-		clog 1 "[cs_makeInitRd()]" Recreation failed!
+	initrd_hook || {
+		clog 1 "[cs_makeInitRd]" initrd_hook failed!
 		return 1
 	}
 	
 	clog 2 "[cs_makeInitRd]" Running initrd_hook.
-	initrd_hook || {
-		clog 1 "[cs_makeInitRd]" initrd_hook failed!
+	env_execChroot mkinitcpio -p linux || {
+		clog 1 "[cs_makeInitRd()]" Recreation failed!
 		return 1
 	}
 	
 	return 0
 }
 
-# TODO: remove magic value
+##
+# Configures the grub bootloader
+##
 cs_configBootloader(){
 	clog 2 "[cs_configBootloader()]" Install and configure bootloader.
 
-	pacman -S grub || {
+	env_execChroot pacman -S grub || {
 		clog 1 "[cs_configBootloader()]" Package installation failed!
 		return 1
 	}
-	grub-install --target=i386-pc --recheck /dev/sda || {
+	env_execChroot grub-install --target=i386-pc --recheck ${BS_DISK} || {
 		clog 1 "[cs_configBootloader()]" Bootloader installation failed!
 		return 1
 	}
@@ -138,7 +135,7 @@ cs_configBootloader(){
 		return 1
 	}
 	
-	grub-mkconfig -o /boot/grub/grub.cfg || {
+	env_execChroot grub-mkconfig -o /boot/grub/grub.cfg || {
 		clog 1 "[cs_configBootloader()]" Bootloader configuration failed!
 		return 1
 	}
@@ -156,7 +153,7 @@ cs_installProgs(){
 	for i in ${CS_PROGS[*]}; do
 		clog 2 "[cs_installProgs()]" Install package ${i}
 
-		pacman -S --noconfirm $i || {
+		env_execChroot pacman -S --noconfirm $i || {
 			clog 1 cs_install could not install package $i
 			return 1
 		}
@@ -166,9 +163,6 @@ cs_installProgs(){
 }
 
 cs_install(){
-	env_loadHooks "cs_install"
-
-
 	for i in $CS_ORDER; do
 		clog 2 "[cs_install()]" Running function $i.
 		${i} || {
@@ -179,11 +173,3 @@ cs_install(){
 	
 	return 0
 }
-
-cs_install || {
-	clog 1 "[cs_install]" Chrootstrap failed!
-	exit 1
-}
-
-passwd
-exit 0

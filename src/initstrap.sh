@@ -80,34 +80,21 @@ is_download(){
 # Runs the bootstrapping files
 ##
 is_startStrapping(){
-	clog 2 "[is_startStrappig()]" Starting ${IS_NAMES[0]}
-
-	bash -- ${IS_NAMES[0]} || {
-		clog 1 "[is_startStrapping()]" Initial Bootstrapping failed!
-		return 1
-	}
-
-	# copy env to chroot-environment
-	cp env.conf /mnt/ || {
-		clog 1 "[is_startStrapping()]" Could not copy env.conf to /mnt
-		return 1
-	}
-	for i in $HOOKS; do
-		[ -f $i ] && {
-			clog 2 "[is_startStrapping()]" Copying hook $i.
-			cp $i /mnt/ || {
-				clog 1 "[is_startStrapping()]" Copying failed!
-				return 1
-			}
-		} || {
-			clog 1 "[is_startStrapping()]" Invalid file name of hook: $i!
-			return 1
-		}
-	done
+	clog 2 "[is_startStrappig()]" Loading ${IS_NAMES[0]}
+	. ${IS_NAMES[0]}
 	
-	clog 2 "[is_startStrapping()]" Starting ${IS_NAMES[1]}
-	cat ${IS_NAMES[1]} | arch-chroot /mnt/ /bin/bash || {
-		clog 1 "[is_startStrapping()]" Arch-chroot strapping failed!
+	# bs_install is the function that's been sourced by IS_NAMES[0]
+	bs_install || {
+		clog 1 "[bs_install()]" Script bootstrap failed!
+		bs_cleanup
+		return 1
+	}
+	
+	clog 2 "[is_startStrapping()]" Loading ${IS_NAMES[1]}
+	. ${IS_NAMES[1]}
+	
+	cs_install || {
+		clog 1 "[cs_install]" Chrootstrap failed!
 		return 1
 	}
 	
@@ -142,6 +129,9 @@ is_start(){
 		clog 1 "[is_start()]" Could not download environment file.
 		exit 1
 	}
+	
+	env_loadHooks "[is_start()]"
+
 	is_download || {
 		clog 1 "[is_start()]" Could not download bootstrapping files.
 		exit 1
