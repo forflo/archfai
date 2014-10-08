@@ -93,11 +93,13 @@ bs_instBaseSys(){
 # Generates an initial fstab
 ##
 bs_genFstab(){
-	echo generating fstab...
+	clog 2 "[bs_genFstab()]" generating fstab...
 	genfstab -U -p /mnt >> /mnt/etc/fstab || { 
 		clog 1 "[bs_instBaseSys()]" Generation of the fstab file failed!
 		return 1
 	}
+	
+	return 0
 }
 
 ##
@@ -106,12 +108,15 @@ bs_genFstab(){
 bs_finish(){
 	echo finished installing your base system.
 	echo now chrootstrapping starts
+	
+	return 0
 }
 
 ##
 # Unmounts the disks still mounted
 ##
 bs_cleanup(){
+	clog 2 "[bs_cleanup()]" Starting cleanup.
 	umount ${BS_DISK}1 ${BS_DISK}2 || {
 		clog 1 "[bs_cleanup()]" Cleanup failed!
 		return 1
@@ -128,20 +133,22 @@ bs_cleanup(){
 ##
 install(){
 	# insert hooks
+	clog 2 "[install()]" Inserting hooks!
+
 	for i in $CS_HOOKS; do
 		[ -f $i ] && {
-			echo loading hook $i
+			clog 2 "[install()]" loading hook $i
 			. ${i}
 		} || {
-			echo could not find the hook
+			clog 1 "[install()]" could not find the hook
 			return 1
 		}
 	done
 
-	for i in $CS_ORDER; do
-		echo Running function $i
+	for i in $BS_ORDER; do
+		clog 2 "[install()]" Running function $i.
 		${i} || {
-			echo function $i failed
+			clog 1 "[install()]" Function $i failed!
 			return 1
 		}
 	done
@@ -149,7 +156,7 @@ install(){
 }
 
 install || {
-	echo Installation script failed!
+	clog 1 "[install()]" Script bootstrap failed!
 	bs_cleanup
 	exit 1
 }

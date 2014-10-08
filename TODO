@@ -1,2 +1,2 @@
-- Make partitioning configurable
-- Fix networking bugs
+- Make partitioning configurable - OK
+- Make it possible to establish netowork configuration hooks
