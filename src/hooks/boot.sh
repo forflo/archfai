@@ -11,8 +11,7 @@ boot_hook(){
 	}
 	
 	clog 2 "[boot_hook]" Adding parameter to kernel command line
-	echo 'GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT}"'\
-		cryptdevice=UUID=${dev_uuid} >> /etc/default/grub
+	env_execChroot echo "GRUB_CMDLINE_LINUX_DEFAULT=\"cryptdevice=UUID=${dev_uuid}\"" '>>' /etc/default/grub
 	
 	return 0
 }
