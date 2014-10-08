@@ -130,7 +130,6 @@ is_start(){
 		clog 1 "[is_start()]" Could not download environment file.
 		exit 1
 	}
-	
 
 	is_download || {
 		clog 1 "[is_start()]" Could not download bootstrapping files.
