@@ -1,4 +1,11 @@
 #!/bin/bash
+##
+# Author: Florian Mayer
+# Date: 08.10.2014
+# Downloads the file list (IS_LINKS) naming them
+# as specified in IS_NAMES. Then starts the 
+# scripts bootstrap and chrootstrap (in this order).
+##
 
 IS_LINKS=(
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/bootstrap.sh"
@@ -8,6 +15,7 @@ IS_LINKS=(
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/fstab.sh"
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/net.sh"
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/initrd.sh"
+	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/boot.sh"
 )
 
 IS_NAMES=(
@@ -18,6 +26,7 @@ IS_NAMES=(
 	"fstab_hook"
 	"net_hook"
 	"initrd_hook"
+	"boot_hook"
 )
 
 ENV="https://raw.githubusercontent.com/forflo/archfai/master/src/env.conf"

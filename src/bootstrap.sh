@@ -137,37 +137,23 @@ bs_cleanup(){
 # You can, of course, modify this list to fit this
 # program to your needs
 ##
-install(){
+bs_install(){
 	# insert hooks
-	clog 2 "[install()]" Inserting hooks.
-	for i in $HOOKS; do
-		[ -f $i ] && {
-			clog 2 "[install()]" Loading hook $i.
-			. ${i} || {
-				clog 1 "[install()]" Loading of hook $i failed!
-				return 1
-			}
-		} || {
-			clog 1 "[install()]" Invalid file name of hook: $i.
-			clog 2 "[install()]" Will create dummy hook function for $i.
-			eval "${i}(){ :; }"
-			# every thing is fine. No return 1 necessary
-		}
-	done
-	clog 2 "[install()]" Inserting hooks finished successfully!
+	env_loadHooks "bs_install"
+
 
 	for i in $BS_ORDER; do
-		clog 2 "[install()]" Running function $i.
+		clog 2 "[bs_install()]" Running function $i.
 		${i} || {
-			clog 1 "[install()]" Function $i failed!
+			clog 1 "[bs_install()]" Function $i failed!
 			return 1
 		}
 	done
 	return 0
 }
 
-install || {
-	clog 1 "[install()]" Script bootstrap failed!
+bs_install || {
+	clog 1 "[bs_install()]" Script bootstrap failed!
 	bs_cleanup
 	exit 1
 }
