@@ -1,4 +1,11 @@
 #!/bin/bash
+##
+# Author: Florian Mayer
+# Date: 08.10.2014
+# Downloads the file list (IS_LINKS) naming them
+# as specified in IS_NAMES. Then starts the 
+# scripts bootstrap and chrootstrap (in this order).
+##
 
 IS_LINKS=(
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/bootstrap.sh"
