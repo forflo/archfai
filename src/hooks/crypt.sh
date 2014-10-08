@@ -7,9 +7,6 @@
 ##
 crypt_hook(){
 	local crypt_device="cryptroot"
-	clog 2 "[crypt_hook()]" Doing cryptsetup with LUKS.
-	clog 2 "[crypt_hook()]" Please provide your password.
-
 	
 	clog 2 "[crypt_hook()]" Doing cryptsetup with LUKS.
 	clog 2 "[crypt_hook()]" Please provide your password.
