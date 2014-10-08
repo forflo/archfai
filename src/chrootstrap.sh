@@ -120,7 +120,7 @@ cs_makeInitRd(){
 cs_configBootloader(){
 	clog 2 "[cs_configBootloader()]" Install and configure bootloader.
 
-	env_execChroot pacman -S grub || {
+	env_execChroot pacman -S --noconfirm grub || {
 		clog 1 "[cs_configBootloader()]" Package installation failed!
 		return 1
 	}
