@@ -10,8 +10,6 @@ crypt_hook(){
 	
 	clog 2 "[crypt_hook()]" Doing cryptsetup with LUKS.
 	clog 2 "[crypt_hook()]" Please provide your password.
-	clog 2 "[crypt_hook()]" The current keyboard layout will be set to $load_keys
-
 	
 	# requires the user to break the unattendedness of this script package
 	cryptsetup --verbose --key-size=512\
