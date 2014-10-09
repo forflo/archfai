@@ -81,8 +81,7 @@ is_download(){
 ##
 is_startStrapping(){
 	env_loadHooks "[is_start()]"
-	boot_hook
-	
+
 	clog 2 "[is_startStrappig()]" Loading ${IS_NAMES[0]}
 	. ${IS_NAMES[0]}
 	
