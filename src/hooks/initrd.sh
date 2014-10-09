@@ -12,10 +12,10 @@ initrd_hook(){
 	local conf="/etc/mkinitcpio.conf"
 	
 	clog 2 "[initrd_hook()]" Generating temporary mkinitcpio.conf
-	env_execChroot echo MODULES=\"\" '>' ${conf}
-	env_execChroot echo BINARIES=\"\" '>>' ${conf}
-	env_execChroot echo FILES=\"\" '>>' ${conf}
 	env_execChrootH << EOF
+		echo MODULES=\"\" > ${conf}
+		echo BINARIES=\"\" >> ${conf}
+		echo FILES=\"\" >> ${conf}
 		echo HOOKS=\"base udev autodetect modconf block encrypt filesystems keyboard fsck\" >> ${conf}
 EOF
 
