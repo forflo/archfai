@@ -25,7 +25,7 @@ crypt_hook(){
 	
 	echo
 	# requires the user to break the unattendedness of this script package
-	echo $pwd1 | cryptsetup --verbose --key-size=512\
+	echo -n $pwd1 | cryptsetup --verbose --key-size=512\
 		--hash=sha512 --cipher=serpent-xts-plain64\
 		--key-file - --use-urandom luksFormat ${BS_SP} || {
 
@@ -33,7 +33,7 @@ crypt_hook(){
 		return 1		
 	}
 	
-	echo $pwd1 | cryptsetup --key-file - open ${BS_SP} ${CRYPT_DEV} || {
+	echo -n $pwd1 | cryptsetup --key-file - open ${BS_SP} ${CRYPT_DEV} || {
 		clog 1 "[crypt_hook()]" Opening and creation of mapping device failed!
 		return 1
 	}
