@@ -6,7 +6,6 @@
 # in this function.
 ##
 crypt_hook(){
-	local crypt_device="cryptroot"
 	local terminal="/dev/tty1"
 	
 	clog 2 "[crypt_hook()]" Doing cryptsetup with LUKS.
@@ -34,14 +33,14 @@ crypt_hook(){
 		return 1		
 	}
 	
-	echo $pwd1 | cryptsetup --key-file - open ${BS_SP} ${crypt_device} || {
+	echo $pwd1 | cryptsetup --key-file - open ${BS_SP} ${CRYPT_DEV} || {
 		clog 1 "[crypt_hook()]" Opening and creation of mapping device failed!
 		return 1
 	}
 	
 	# Sets the system partition to the new layer that
 	# sits on top of the old BS_SP
-	BS_SP="/dev/mapper/${crypt_device}"
+	BS_SP="/dev/mapper/${CRYPT_DEV}"
 	
 	return 0
 }
