@@ -15,7 +15,7 @@ initrd_hook(){
 	env_execChroot echo MODULES=\"\" '>>' ${conf}
 	env_execChroot echo BINARIES=\"\" '>>' ${conf}
 	env_execChroot echo FILES=\"\" '>>' ${conf}
-	env_execChroot echo HOOKS=\"base udev autodetect modconf block filesystems keyboard fsck\" '>>' ${conf}
+	env_execChroot echo HOOKS=\"\"base udev autodetect modconf block encrypt filesystems keyboard fsck\"\" '>>' ${conf}
 	
 	env_execChroot mkinitcpio --config ${conf} -p linux || {
 		clog 1 "[initrd_hook()]" Configuration of hooks failed
