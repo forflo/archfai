@@ -19,6 +19,8 @@ initrd_hook(){
 	
 	env_execChroot mkinitcpio --config ${conf} -p linux || {
 		clog 1 "[initrd_hook()]" Configuration of hooks failed
-		
+		return 1
 	}
+	
+	return 0
 }
