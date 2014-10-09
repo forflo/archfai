@@ -31,14 +31,14 @@ and i **will** fix that as soon as I can find the time!
 
 Important Notes
 ===============
-A working knowledge of how to write shellscripts and a extended
+A working knowledge of how to write shellscripts and an extended
 knowledge about installing and configuring an archlinux system from scratch
 is strongly recommended.
 
 This project represents **no zeroconf installer script**
 where you just need to change two or three values and
 everything works correctly. It just provides the framework for you
-to add configuration specific commands that will be run in the correct
+to add configuration specific commands that will then be run in the right
 order. Of course there are still flat configuration variables you just
 need to adjust to reach your goal (e.g. The time zone variable).
 
