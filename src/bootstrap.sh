@@ -119,19 +119,6 @@ bs_finish(){
 }
 
 ##
-# Unmounts the disks still mounted
-##
-bs_cleanup(){
-	clog 2 "[bs_cleanup()]" Starting cleanup.
-	umount ${BS_DISK}1 ${BS_DISK}2 || {
-		clog 1 "[bs_cleanup()]" Cleanup failed!
-		return 1
-	}
-	
-	return 0
-}
-
-##
 # Traverses the CS_ORDER array which contains
 # the names of the functions that should be run.
 # You can, of course, modify this list to fit this
