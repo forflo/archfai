@@ -19,7 +19,7 @@ cs_configLocale(){
 		return 1
 	}
 EOF
-	
+
 	clog 2 "[cs_configLocale()]" Generating locales.
 	env_execChroot locale-gen || {
 		clog 1 "[cs_configLocale()]" Generation failed!
