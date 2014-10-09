@@ -6,6 +6,9 @@
 # as specified in IS_NAMES. Then starts the 
 # scripts bootstrap and chrootstrap (in this order).
 ##
+VERSION="beta-rc1.1"
+OPT_SETTINGS="settings.conf"
+OPTSTR="hvl"
 
 IS_LINKS=(
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/bootstrap.sh"
@@ -125,29 +128,156 @@ is_clean(){
 ##
 # Starting point
 ##
-is_start(){
+is_startOnline(){
 	is_loadEnv || {
-		clog 1 "[is_start()]" Could not download environment file.
+		clog 1 "[is_startOnline()]" Could not download environment file.
 		exit 1
+	}
+	
+	# look for additional local settings
+	[ -f "${OPT_SETTINGS}" ] && {
+		clog 3 "[is_startOnline()]" Found local settings File! Will now load it.
+		. ${OPT_SETTINGS} || {
+			clog 1 "[is_startOnline()]" Something failed while sourcing ${OPT_SETTINGS}
+			exit 1
+		}
+		clog 3 "[is_startOnline()]" Loading finished successfully!
 	}
 
 	is_download || {
-		clog 1 "[is_start()]" Could not download bootstrapping files.
+		clog 1 "[is_startOnline()]" Could not download bootstrapping files.
 		exit 1
 	}
+	
 	is_startStrapping || {
-		clog 1  "[is_start()]" Could not start bootstrapping.
+		clog 1  "[is_startOnline()]" Could not start bootstrapping.
 		is_clean || {
-			clog 1 "[is_start()]" Could not clean environment.
+			clog 1 "[is_startOnline()]" Could not clean environment.
 			exit 1
 		}
 		exit 1
 	}
+	
 	is_clean || {
-		clog 1 "[is_start()]" Could not clean environment.
+		clog 1 "[is_startOnline()]" Could not clean environment.
 		exit 1
 	}
+	
 	exit 0
 }
 
-is_start
+is_startLocal(){
+	# 1) Checking for primary files
+	for i in ${IS_NAMES[*]}; do
+		echo "[is_startLocal()]" Checking for file $i.
+		[ -f $i ] && {
+			echo "[is_startLocal()]" File $i OK.
+		} || {
+			[ "$i" = "bootstrap" -o "$i" = "chrootstrap" ] && {
+				echo "[is_startLocal()]" Mandatory file not found: $i.
+				exit 0
+			}
+		}
+	done
+	
+	# 2) Loading env.conf
+	[ -f env.conf ] && {
+		clog 2 "[is_startLocal()]" Loading env.conf.
+		chmod 750 env.conf || {
+			echo "[is_startLocal()]" Chmod failed1
+			exit 1
+		}
+		
+		. env.conf || {
+			echo "[is_startLocal()]" Something failed while sourcing env.conf!
+			exit 1
+		}
+	} || {
+		echo "[is_startLocal()]" env.conf is missing!
+		exit 1
+	}
+	
+	# 3) Loading additional settings
+	[ -f "${OPT_SETTINGS}" ] && {
+		clog 3 "[is_startOnline()]" Found local settings File! Will now load it.
+		. ${OPT_SETTINGS} || {
+			clog 1 "[is_startOnline()]" Something failed while sourcing ${OPT_SETTINGS}
+			exit 1
+		}
+		clog 3 "[is_startOnline()]" Loading finished successfully!
+	}
+	
+	# 4) Proceeding as in is_startOnline()...
+	is_download || {
+		clog 1 "[is_startOnline()]" Could not download bootstrapping files.
+		exit 1
+	}
+	
+	is_startStrapping || {
+		clog 1  "[is_startOnline()]" Could not start bootstrapping.
+		is_clean || {
+			clog 1 "[is_startOnline()]" Could not clean environment.
+			exit 1
+		}
+		exit 1
+	}
+	
+	is_clean || {
+		clog 1 "[is_startOnline()]" Could not clean environment.
+		exit 1
+	}
+	
+	exit 0
+}
+
+is_help(){
+	cat << EOF
+	Archfai help
+	============
+	usage: $0 	[ -h | -l | -v ]
+		v := Puts the current version on the console
+		h := Displays help
+		l := Toggles the local mode 
+			 (see https://github.com/forflo/archfai)
+EOF
+	return 0
+}
+
+is_version(){
+	cat << EOF
+	Version: ${VERSION}
+	===================
+	Archfai aims to provide a shell script package
+	specific for archlinux which makes it possible
+	to automate the  complete installation process
+	with just one command.
+EOF
+	return 0
+}
+
+[ "$#" -ne "0" ] && {
+	# TODO: parse commandline arguments
+	while getopts ${OPTSTR} input; do
+		case ${input} in
+			(h) 
+				is_help
+				exit 0
+				;;
+			(v) 
+				is_version
+				exit 0
+				;;
+			(l)
+				echo Starting local...
+				is_startLocal
+				;;
+			(*)
+				echo Invalid commandline argument!
+				is_help
+				exit 1
+				;;
+		esac
+	done
+} || {
+	is_startOnline
+}
