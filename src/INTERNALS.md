@@ -1,7 +1,7 @@
 Internals
 =========
 You'll usually start the installation
-by doing the command $ curl <link to initstrap.sh> | bash.
+by doing the command $ curl "link to initstrap.sh" | bash.
 
 initstrap.sh itself will then download the
 following files in the given order
