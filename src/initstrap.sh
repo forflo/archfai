@@ -1,5 +1,5 @@
 #!/bin/bash
-##
+#
 # Author: Florian Mayer
 # Date: 08.10.2014
 # Downloads the file list (IS_LINKS) naming them

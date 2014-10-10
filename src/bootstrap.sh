@@ -125,8 +125,6 @@ bs_finish(){
 # program to your needs
 ##
 bs_install(){
-
-
 	for i in $BS_ORDER; do
 		clog 2 "[bs_install()]" Running function $i.
 		${i} || {
