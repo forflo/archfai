@@ -173,6 +173,10 @@ is_startLocal(){
 		[ -f $i ] && {
 			echo "[is_startLocal()]" File $i OK.
 		} || {
+			[ -f "hook/$i" ] && {
+				echo "[is_startLocal()]" File $i OK.
+			}
+			
 			[ "$i" = "bootstrap" -o "$i" = "chrootstrap" ] && {
 				echo "[is_startLocal()]" Mandatory file not found: $i.
 				exit 0
