@@ -232,25 +232,25 @@ is_startLocal(){
 
 is_help(){
 	cat << EOF
-	Archfai help
-	============
-	usage: $0 	[ -h | -l | -v ]
-		v := Puts the current version on the console
-		h := Displays help
-		l := Toggles the local mode 
-			 (see https://github.com/forflo/archfai)
+Archfai help
+============
+usage: $0 	[ -h | -l | -v ]
+	v := Puts the current version on the console
+	h := Displays help
+	l := Toggles the local mode 
+		 (see https://github.com/forflo/archfai)
 EOF
 	return 0
 }
 
 is_version(){
 	cat << EOF
-	Version: ${VERSION}
-	===================
-	Archfai aims to provide a shell script package
-	specific for archlinux which makes it possible
-	to automate the  complete installation process
-	with just one command.
+Version: ${VERSION}
+===================
+Archfai aims to provide a shell script package
+specific for archlinux which makes it possible
+to automate the  complete installation process
+with just one command.
 EOF
 	return 0
 }
