@@ -21,6 +21,8 @@ IS_LINKS=(
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/boot_hook.sh"
 )
 
+ENV="https://raw.githubusercontent.com/forflo/archfai/master/src/env.conf"
+
 IS_NAMES=(
 	"bootstrap.sh"
 	"chrootstrap.sh"
@@ -32,7 +34,17 @@ IS_NAMES=(
 	"boot_hook.sh"
 )
 
-ENV="https://raw.githubusercontent.com/forflo/archfai/master/src/env.conf"
+LOCAL_NAMES=(
+	"bootstrap.sh"
+	"chrootstrap.sh"
+	"hooks/crypt_hook.sh"
+	"hooks/lvm_hook.sh"
+	"hooks/fstab_hook.sh"
+	"hooks/net_hook.sh"
+	"hooks/initrd_hook.sh"
+	"hooks/boot_hook.sh"
+)
+
 
 ##
 # Load environment
@@ -172,15 +184,11 @@ is_startOnline(){
 
 is_startLocal(){
 	# 1) Checking for primary files
-	for i in ${IS_NAMES[*]}; do
+	for i in ${LOCAL_NAMES[*]}; do
 		echo "[is_startLocal()]" Checking for file $i.
 		[ -f $i ] && {
 			echo "[is_startLocal()]" File $i OK.
-		} || {
-			[ -f "hook/$i" ] && {
-				echo "[is_startLocal()]" File $i OK.
-			}
-			
+		} || {			
 			[ "$i" = "bootstrap" -o "$i" = "chrootstrap" ] && {
 				echo "[is_startLocal()]" Mandatory file not found: $i.
 				exit 0
