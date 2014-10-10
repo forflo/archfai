@@ -16,18 +16,31 @@ Here are some shortened links for your convenience:
 
 Usage
 =====
-* Upload the files in src to a webspace of your choice
-* Change the links in initstrap.sh appropriately
+Online
+------
+* Upload the files in src to a webspace of your choice.
+* Change the links in initstrap.sh appropriately.
 * Adjust the settings in env.conf according to your taste,
 	but be aware of what you're changing.
-* Shorten the link of your new initstrap.sh location
-* Start the Archlinux live cd and establish a working internet connection
+* Shorten the link of your new initstrap.sh location.
+* Start the Archlinux live cd and establish a working internet connection.
 * Execute the command:
-	$ curl -L bit.ly/yourlink | bash
+	$ curl -L bit.ly/yourlink | bash.
+* Fetch yourself a nice hot chocolate, preferably garnished with some marshmallows.
+* Enjoy your new Archlinux installation
 
 That's all.
 You should have a working base installation of Archlinux in about
 3 minutes or less (if your internet connection is fast enough).
+
+Local
+-----
+* Download the master branch and unpack it.
+* Change in the newly created folder and then into src.
+* If you want to change the settings, create a file called "settings.conf" or edit env.conf directly.
+* Now do $ ./initstrap -l  (-l means "Use the local files").
+* Fetch yourself a tee/coffee
+* Enjoy your new Archlinux installation
 
 Hooks
 =====
