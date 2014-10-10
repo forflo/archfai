@@ -81,9 +81,13 @@ is_download(){
 
 ##
 # Runs the bootstrapping files
+# Param:
+#   $1: "local" or ""
+# Return:
+#   <void>
 ##
 is_startStrapping(){
-	env_loadHooks "[is_start()]"
+	env_loadHooks "[is_start()]" "$1"
 
 	clog 2 "[is_startStrappig()]" Loading ${IS_NAMES[0]}
 	. ${IS_NAMES[0]}
@@ -186,7 +190,7 @@ is_startLocal(){
 	
 	# 2) Loading env.conf
 	[ -f env.conf ] && {
-		clog 2 "[is_startLocal()]" Loading env.conf.
+		echo "[is_startLocal()]" Loading env.conf.
 		chmod 750 env.conf || {
 			echo "[is_startLocal()]" Chmod failed1
 			exit 1
@@ -211,13 +215,8 @@ is_startLocal(){
 		clog 3 "[is_startOnline()]" Loading finished successfully!
 	}
 	
-	# 4) Proceeding as in is_startOnline()...
-	is_download || {
-		clog 1 "[is_startOnline()]" Could not download bootstrapping files.
-		exit 1
-	}
-	
-	is_startStrapping || {
+	# 4) Start bootstrap.sh
+	is_startStrapping local || {
 		clog 1  "[is_startOnline()]" Could not start bootstrapping.
 		is_clean || {
 			clog 1 "[is_startOnline()]" Could not clean environment.
