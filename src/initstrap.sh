@@ -99,13 +99,22 @@ is_download(){
 #   <void>
 ##
 is_startStrapping(){
-	env_loadHooks "[is_start()]" "$1"
-
+	[ "$1" = "local" ] && {
+		env_loadHooks
+	} || {
+		env_loadHooksLocal
+	}
+	
 	clog 2 "[is_startStrappig()]" Loading ${IS_NAMES[0]}
-	. ${IS_NAMES[0]}
+	. ${IS_NAMES[0]} || {
+		clog 1 "[is_startStrappig()]" Loading ${IS_NAMES[0]} failed!
+		return 1
+	}
 	
 	clog 2 "[is_startStrapping()]" Loading ${IS_NAMES[1]}
-	. ${IS_NAMES[1]}
+	. ${IS_NAMES[1]} || {
+		clog 1 "[is_startStrappig()]" Loading ${IS_NAMES[1]} failed!
+	}
 	
 	# bs_install is the function that's been sourced by IS_NAMES[0]
 	bs_install || {
