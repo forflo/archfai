@@ -209,7 +209,7 @@ is_startLocal(){
 	[ -f env.conf ] && {
 		echo "[is_startLocal()]" Loading env.conf.
 		chmod 750 env.conf || {
-			echo "[is_startLocal()]" Chmod failed1
+			echo "[is_startLocal()]" Chmod failed!
 			exit 1
 		}
 		
@@ -226,24 +226,24 @@ is_startLocal(){
 	[ -f "${OPT_SETTINGS}" ] && {
 		clog 3 "[is_startOnline()]" Found local settings File! Will now load it.
 		. ${OPT_SETTINGS} || {
-			clog 1 "[is_startOnline()]" Something failed while sourcing ${OPT_SETTINGS}
+			clog 1 "[is_startOnline()]" Something failed while sourcing ${OPT_SETTINGS}!
 			exit 1
 		}
 		clog 3 "[is_startOnline()]" Loading finished successfully!
 	}
 	
 	# 4) Start bootstrap.sh
-	is_startStrapping local || {
+	is_startStrapping "local" || {
 		clog 1  "[is_startOnline()]" Could not start bootstrapping.
 		is_clean || {
-			clog 1 "[is_startOnline()]" Could not clean environment.
+			clog 1 "[is_startOnline()]" Could not clean environment!
 			exit 1
 		}
 		exit 1
 	}
 	
 	is_clean || {
-		clog 1 "[is_startOnline()]" Could not clean environment.
+		clog 1 "[is_startOnline()]" Could not clean environment!
 		exit 1
 	}
 	
