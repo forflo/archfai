@@ -100,9 +100,9 @@ is_download(){
 ##
 is_startStrapping(){
 	[ "$1" = "local" ] && {
-		env_loadHooks
-	} || {
 		env_loadHooksLocal
+	} || {
+		env_loadHooks
 	}
 	
 	clog 2 "[is_startStrappig()]" Loading ${IS_NAMES[0]}
