@@ -11,8 +11,9 @@ media and no curl orgies needed, just one command.
 Links
 -----
 Here are some shortened links for your convenience:
-* Compressed Master (tar.gz): 	http://bit.ly/1D0m6VH
-* Compressed Master (zip):	http://bit.ly/1o31t8h
+* Compressed Master (tar.gz): 		http://bit.ly/1D0m6VH
+* Compressed Master (zip):		http://bit.ly/1o31t8h
+* Link to the scripts entry point:	http://bit.ly/1vCuB50
 
 Usage
 =====
