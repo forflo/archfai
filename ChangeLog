@@ -1,1 +1,16 @@
-<currently just without content>
+[stable-rc1] - Author: forflo (24.10.2014)
+* Splitted env.conf into env.conf and lib.sh. 
+    lib.sh now contains all library functions 
+    and env.conf only configuration variables
+* Refactored initstrap.sh. In online mode initstrap.sh
+    does not download the files to disk anymore
+    The eval "$(curl -L >link<)" approach is used, which
+    is not only faster but more clean than the previous
+    code. 
+    
+    Attention! You, and _only_ you, are obliged to
+    take care of secure transfer of the evaluated code!
+* Little bugfixes (see. Issues)
+
+[beta-rc2] - Author: forflo (24.10.2014)
+* First publicly usable release
