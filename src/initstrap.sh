@@ -174,13 +174,7 @@ archfai_main(){
 		clog 1 "[archfai_main()]" Could not parse arguments!
 		return 1
 	}
-
-	archfai_init || {
-		clog 1 "[archfai_main()]" Archfai could not be initialized!
-		return 1
-	}
-
-	##
+		##
 	# Evaluate the option values
 	[ "$AF_VERSION" = "true" ] && {
 		archfai_version
@@ -190,6 +184,11 @@ archfai_main(){
 	[ "$AF_HELP" = "true" ] && {
 		archfai_help
 		return 0
+	}
+
+	archfai_init || {
+		clog 1 "[archfai_main()]" Archfai could not be initialized!
+		return 1
 	}
 
 	archfai_startStrapping || {
