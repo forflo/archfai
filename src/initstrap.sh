@@ -15,14 +15,19 @@ AF_HELP="false"
 
 AF_LINKS=(
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/env.conf"
+	"https://raw.githubusercontent.com/forflo/archfai/master/src/lib.sh"
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/bootstrap.sh"
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/chrootstrap.sh"
-	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/crypt_hook.sh"
-	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/lvm_hook.sh"
-	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/fstab_hook.sh"
-	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/net_hook.sh"
-	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/initrd_hook.sh"
-	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/boot_hook.sh"
+)
+
+declare -A AF_HOOK_LINKS
+AF_HOOK_LINKS=(
+	["crypt_hook"]="https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/crypt_hook.sh"
+	["lvm_hook"]="https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/lvm_hook.sh"
+	["fstab_hook"]="https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/fstab_hook.sh"
+	["net_hook"]="https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/net_hook.sh"
+	["initrd_hook"]="https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/initrd_hook.sh"
+	["boot_hook"]="https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/boot_hook.sh"
 )
 
 AF_FILES=(
@@ -40,10 +45,22 @@ AF_FILES=(
 # Downloads and sources the needed scripts
 ##
 archfai_init(){
+	##
+	# Downloading critical files
 	for i in ${AF_LINKS[*]}; do
 		clog 2 "[archfai_init()]" Downloading and sourcing ${i:0:20} ...
 		eval "$(curl -L ${i} > /dev/null 2>&1)" || {
 			clog 1 "[archfai_init()]" Sourcing failed!
+			return 1
+		}
+	done
+
+	##
+	# Downloading necessary hooks
+	for i in ${AF_HOOKS}; do
+		clog 2 "[archfai_init()]" Downloading and sourcing hook: ${i} ... 
+		eval "$(curl -L ${AF_HOOK_LINKS[$i]} > /dev/null 2>&1)" || {
+			clog 1 "[archfai_init()]" Sourcing of hook ${i} failed!
 			return 1
 		}
 	done
