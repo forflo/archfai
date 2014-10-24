@@ -31,8 +31,13 @@ AF_HOOK_LINKS=(
 )
 
 AF_FILES=(
+	"env.conf"
+	"lib.sh"
 	"bootstrap.sh"
 	"chrootstrap.sh"
+)
+
+AF_HOOK_FILES=(
 	"hooks/crypt_hook.sh"
 	"hooks/lvm_hook.sh"
 	"hooks/fstab_hook.sh"
@@ -72,23 +77,33 @@ EOF
 archfai_init(){
 	##
 	# Downloading critical files
-	for i in ${AF_LINKS[*]}; do
-		clog 2 "[archfai_init()]" Downloading and sourcing ${i:0:20} ...
-		eval "$(curl -L ${i} 2> /dev/null)" || {
-			clog 1 "[archfai_init()]" Sourcing failed!
-			return 1
-		}
-	done
+	[ "AF_RUNLOCAL" = "false" ] && {
+		for i in ${AF_LINKS[*]}; do
+			clog 2 "[archfai_init()]" Downloading and sourcing ${i:0:20} ...
+			eval "$(curl -L ${i} 2> /dev/null)" || {
+				clog 1 "[archfai_init()]" Sourcing failed!
+				return 1
+			}
+		done
+	} || {
+		##
+		# Running locally
+		for i in ${AF_FILES[*]}; do
+			clog 2 "[archfai_init()]" Downloading and sourcing ${i:0:20} ...
+			. ${i} || {
+				clog 1 "[archfai_init()]" Sourcing of ${i} failed!
+				return 1
+			}
+		done
+	}
 
 	##
-	# Downloading necessary hooks
-	for i in ${AF_HOOKS}; do
-		clog 2 "[archfai_init()]" Downloading and sourcing hook: ${i} ... 
-		eval "$(curl -L ${AF_HOOK_LINKS[$i]} 2> /dev/null)" || {
-			clog 1 "[archfai_init()]" Sourcing of hook ${i} failed!
-			return 1
-		}
-	done
+	# Sourcing hooks
+	[ "AF_RUNLOCAL" = "true" ] && {
+		env_loadHooksLocal
+	} || {
+		env_loadHooksOnline
+	}
 
 	##
 	# Sourcing optional File 
@@ -106,27 +121,16 @@ archfai_init(){
 }
 
 ##
-# Runs the bootstrapping files
-# Param:
-#   $1: "local" or ""
-# Return:
-#   <void>
+# Runs the bootstrapping functions
 ##
 archfai_startStrapping(){
-	[ "$1" = "local" ] && {
-		env_loadHooksLocal
-	} || {
-		env_loadHooks
-	}
-	
-	# bs_install is the function that's been sourced by IS_NAMES[0]
 	bs_install || {
-		clog 1 "[bs_install()]" Script bootstrap failed!
+		clog 1 "[archfai_startStrapping()]" Script bootstrap failed!
 		return 1
 	}
 	
 	cs_install || {
-		clog 1 "[cs_install]" Chrootstrap failed!
+		clog 1 "[archfai_startStrapping()]" Chrootstrap failed!
 		return 1
 	}
 	
@@ -135,76 +139,14 @@ archfai_startStrapping(){
 	return 0
 }
 
-##
-# Starting point
-##
-archfai_startOnline(){
-	archfai_startStrapping || {
-		clog 1  "[is_startOnline()]" Could not start bootstrapping.
-		return 1
-	}
-
-	return 0
-}
-
-archfai_startLocal(){
-	# 1) Checking for primary files
-	for i in ${AF_FILES[*]}; do
-		echo "[archfai_startLocal()]" Checking for file $i.
-		[ -f $i ] && {
-			echo "[archfai_startLocal()]" File $i OK.
-		} || {			
-			[ "$i" = "bootstrap" -o "$i" = "chrootstrap" ] && {
-				echo "[archfai_startLocal()]" Mandatory file not found: $i.
-				exit 0
-			}
-		}
-	done
-
-	# 2) Loading env.conf
-	[ -f env.conf ] && {
-		echo "[archfai_startLocal()]" Loading env.conf.
-		chmod 750 env.conf || {
-			echo "[archfai_startLocal()]" Chmod failed!
-			return 1
-		}
-		
-		. env.conf || {
-			echo "[archfai_startLocal()]" Something failed while sourcing env.conf!
-			return 1
-		}
-	} || {
-		echo "[archfai_startLocal()]" env.conf is missing!
-		return 1
-	}
-
-	# 3) Loading additional settings
-	[ -f "${OPT_SETTINGS}" ] && {
-		clog 3 "[archfai_startLocal()]" Found local settings File! Will now load it.
-		. ${OPT_SETTINGS} || {
-			clog 1 "[archfai_startLocal()]" "Something failed while sourcing ${OPT_SETTINGS}!"
-			return 1
-		}
-		clog 3 "[archfai_startLocal()]" Loading finished successfully!
-	}
-
-	# 4) Start bootstrap.sh
-	archfai_startStrapping "local" || {
-		clog 1  "[archfai_startLocal()]" Could not start bootstrapping.
-		return 1
-	}
-
-	return 0
-}
-
 archfai_parseArgs(){
 	while getopts ${AF_OPTSTR} input; do
 		case ${input} in
-			(h) HELP="true" 
+			(h) AF_HELP="true" 
 				;;
-			(v) VERSION="true"
+			(v) AF_VERSION="true"
 				;;
-			(l) RUNLOCAL="true"
+			(l) AF_RUNLOCAL="true"
 				;;
 			(*) clog 1 "[archfai_parseArgs()]" Option not allowed!
 				return 1
@@ -251,16 +193,9 @@ archfai_main(){
 		return 0
 	}
 
-	[ "$AF_RUNLOCAL" = "true" ] && {
-		archfai_startLocal || {
-			clog 1 "[archfai_main()]" archfai_startLocal failed!
-			return 1
-		}
-	} || {
-		archfai_startOnline || {
-			clog 1 "[archfai_main()]" archfai_startOnline failed!
-			return 1
-		}
+	archfai_startStrapping || {
+		clog 1 "[archfai_main()]" archfai_startStrapping failed!
+		return 1
 	}
 
 	return 0

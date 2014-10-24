@@ -99,29 +99,16 @@ print_white(){
 # Misc functions used by bootstrap.sh and chrootstrap.sh
 ##
 ####
-env_loadHooks(){
-	clog 2 "[env_loadHooks()]" Inserting hooks.
-	for i in *_hook.sh; do
-		eval "${i}(){
-				clog 2 This is a dummy implementation of ${i}
-				clog 2 \">>>>DUMMY<<<<\"
-				return 0
-		}"
-	done
-	
-	for i in $HOOKS; do
-		[ -f $i.sh ] && {
-			clog 2 "[env_loadHooks()]" Loading hook $i.
-			. ${i}.sh || {
-				clog 1 "[env_loadHooks()]" Loading of hook $i failed!
-				return 1
-			}
-		} || {
-			clog 1 "[env_loadHooks()]" Invalid file name!
+env_loadHooksOnline(){
+	##
+	# Downloading necessary hooks
+	for i in ${AF_HOOKS}; do
+		clog 2 "[archfai_init()]" Downloading and sourcing hook: ${i} ... 
+		eval "$(curl -L ${AF_HOOK_LINKS[$i]} 2> /dev/null)" || {
+			clog 1 "[archfai_init()]" Sourcing of hook ${i} failed!
 			return 1
 		}
 	done
-	clog 2 "[env_loadHooks()]" Inserting hooks finished successfully!
 	
 	return 0
 }
@@ -130,32 +117,14 @@ env_loadHooks(){
 # Loads hooks if running with $ initstrap.sh -l
 ##
 env_loadHooksLocal(){
-	local pre="hooks"
-
-	clog 2 "[env_loadHooksLocal()]" Inserting hooks.
-	for i in $HOOKS; do
-		clog 2 "[env_loadHooksLocal()]" Creating dummy function: $i.
-		eval "${i}(){
-				clog 2 This is a dummy implementation of ${i}
-				clog 2 \">>>>DUMMY<<<<\"
-				return 0
-		}"
-	done
-	
-	for i in $HOOKS; do
-		[ -f ${pre}/$i.sh ] && {
-			clog 2 "[env_loadHooksLocal()]" Loading hook $i.
-			. ${pre}/${i}.sh || {
-				clog 1 "[env_loadHooksLocal()]" Loading of hook $i failed!
-				return 1
-			}
-		} || {
-			clog 1 "[env_loadHooksLocal()]" Invalid file name! : $i
+	for i in ${AF_HOOK_FILES[*]}; do
+		clog 2 "[env_loadHooksLocal()]" Sourcing hook: ${i} ... 
+		. ${i} || {
+			clog 1 "[env_loadHooksLocal()]" Sourcing of hook ${i} failed!
 			return 1
 		}
 	done
-	clog 2 "[env_loadHooksLocal()]" Inserting hooks finished successfully!
-	
+
 	return 0
 }
 
