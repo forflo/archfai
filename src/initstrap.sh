@@ -74,7 +74,7 @@ archfai_init(){
 	# Downloading critical files
 	for i in ${AF_LINKS[*]}; do
 		clog 2 "[archfai_init()]" Downloading and sourcing ${i:0:20} ...
-		eval "$(curl -L ${i} > /dev/null 2>&1)" || {
+		eval "$(curl -L ${i} 2> /dev/null)" || {
 			clog 1 "[archfai_init()]" Sourcing failed!
 			return 1
 		}
@@ -84,7 +84,7 @@ archfai_init(){
 	# Downloading necessary hooks
 	for i in ${AF_HOOKS}; do
 		clog 2 "[archfai_init()]" Downloading and sourcing hook: ${i} ... 
-		eval "$(curl -L ${AF_HOOK_LINKS[$i]} > /dev/null 2>&1)" || {
+		eval "$(curl -L ${AF_HOOK_LINKS[$i]} 2> /dev/null)" || {
 			clog 1 "[archfai_init()]" Sourcing of hook ${i} failed!
 			return 1
 		}
@@ -238,7 +238,6 @@ archfai_main(){
 		clog 1 "[archfai_main()]" Archfai could not be initialized!
 		return 1
 	}
-
 
 	##
 	# Evaluate the option values
