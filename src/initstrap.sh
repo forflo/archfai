@@ -212,7 +212,7 @@ archfai_parseArgs(){
 		esac
 	done
 
-	return 1
+	return 0
 }
 
 archfai_main(){
