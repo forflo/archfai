@@ -77,7 +77,7 @@ EOF
 archfai_init(){
 	##
 	# Downloading critical files
-	[ "AF_RUNLOCAL" = "false" ] && {
+	[ "$AF_RUNLOCAL" = "false" ] && {
 		for i in ${AF_LINKS[*]}; do
 			clog 2 "[archfai_init()]" Downloading and sourcing ${i:0:20} ...
 			eval "$(curl -L ${i} 2> /dev/null)" || {
@@ -99,7 +99,7 @@ archfai_init(){
 
 	##
 	# Sourcing hooks
-	[ "AF_RUNLOCAL" = "true" ] && {
+	[ "$AF_RUNLOCAL" = "true" ] && {
 		env_loadHooksLocal
 	} || {
 		env_loadHooksOnline
