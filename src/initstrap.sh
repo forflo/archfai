@@ -77,20 +77,19 @@ EOF
 archfai_init(){
 	##
 	# Downloading critical files
-	[ "$AF_RUNLOCAL" = "false" ] && {
-		for i in ${AF_LINKS[*]}; do
-			clog 2 "[archfai_init()]" Downloading and sourcing ${i:0:20} ...
-			eval "$(curl -L ${i} 2> /dev/null)" || {
-				clog 1 "[archfai_init()]" Sourcing failed!
+	[ "$AF_RUNLOCAL" = "true" ] && {
+		# Running locally
+		for i in ${AF_FILES[*]}; do
+			clog 2 "[archfai_init()]" Sourcing ${i} ...
+			. ${i} || {
+				clog 1 "[archfai_init()]" Sourcing of ${i} failed!
 				return 1
 			}
 		done
 	} || {
-		##
-		# Running locally
-		for i in ${AF_FILES[*]}; do
+		for i in ${AF_LINKS[*]}; do
 			clog 2 "[archfai_init()]" Downloading and sourcing ${i:0:20} ...
-			. ${i} || {
+			eval "$(curl -L ${i} 2> /dev/null)" || {
 				clog 1 "[archfai_init()]" Sourcing of ${i} failed!
 				return 1
 			}
