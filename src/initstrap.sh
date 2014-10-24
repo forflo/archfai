@@ -8,9 +8,13 @@
 ##
 VERSION="beta-rc1.1"
 OPT_SETTINGS="settings.conf"
-OPTSTR="hvl"
+AF_OPTSTR="hvl"
+AF_RUNLOCAL="false"
+AF_VERSION="false"
+AF_HELP="false"
 
-IS_LINKS=(
+AF_LINKS=(
+	"https://raw.githubusercontent.com/forflo/archfai/master/src/env.conf"
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/bootstrap.sh"
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/chrootstrap.sh"
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/crypt_hook.sh"
@@ -21,20 +25,7 @@ IS_LINKS=(
 	"https://raw.githubusercontent.com/forflo/archfai/master/src/hooks/boot_hook.sh"
 )
 
-ENV="https://raw.githubusercontent.com/forflo/archfai/master/src/env.conf"
-
-IS_NAMES=(
-	"bootstrap.sh"
-	"chrootstrap.sh"
-	"crypt_hook.sh"
-	"lvm_hook.sh"
-	"fstab_hook.sh"
-	"net_hook.sh"
-	"initrd_hook.sh"
-	"boot_hook.sh"
-)
-
-LOCAL_NAMES=(
+AF_FILES=(
 	"bootstrap.sh"
 	"chrootstrap.sh"
 	"hooks/crypt_hook.sh"
@@ -45,48 +36,18 @@ LOCAL_NAMES=(
 	"hooks/boot_hook.sh"
 )
 
-
 ##
-# Load environment
+# Downloads and sources the needed scripts
 ##
-is_loadEnv(){
-	echo Downloading env file $ENV
-	curl -o env.conf -L $ENV > /dev/null 2>&1 || {
-		echo Download failed!
-		return 1
-	}
-	
-	chmod 750 env.conf || {
-		echo Chmod failed1
-		return 1
-	}
-	
-	echo Load env.conf...
-	. env.conf
-	
-	clog 2 "[is_loadEnv()]" Loading finished successfully.
-	
-	return 0
-}
-
-##
-# Downloads the needed scripts
-##
-is_download(){
-	for ((i=0; i<${#IS_LINKS[*]}; i++)); do
-		clog 2 "[is_download()]" Downloading ${IS_LINKS[$i]:0:20} ...
-		curl -o ${IS_NAMES[i]} -L ${IS_LINKS[$i]} > /dev/null 2>&1 || {
-			clog 1 "[is_download()]" Download of file ${IS_NAMES[i]} failed!
-			return 1
-		}
-		
-		chmod 750 ${IS_NAMES[i]} || {
-			clog 1 "[is_download()]" Chmod failed!
+archfai_init(){
+	for i in ${AF_LINKS[*]}; do
+		clog 2 "[archfai_init()]" Downloading and sourcing ${i:0:20} ...
+		eval "$(curl -L ${i} > /dev/null 2>&1)" || {
+			clog 1 "[archfai_init()]" Sourcing failed!
 			return 1
 		}
 	done
-	
-	clog 2 "[is_download()]" Finished all downloads successfully.
+	clog 2 "[is_download()]" Finished successfully.
 
 	return 0
 }
@@ -105,16 +66,16 @@ is_startStrapping(){
 		env_loadHooks
 	}
 	
-	clog 2 "[is_startStrappig()]" Loading ${IS_NAMES[0]}
-	. ${IS_NAMES[0]} || {
-		clog 1 "[is_startStrappig()]" Loading ${IS_NAMES[0]} failed!
-		return 1
-	}
+#	clog 2 "[is_startStrappig()]" Loading ${IS_NAMES[0]}
+#	. ${IS_NAMES[0]} || {
+#		clog 1 "[is_startStrappig()]" Loading ${IS_NAMES[0]} failed!
+#		return 1
+#	}
 	
-	clog 2 "[is_startStrapping()]" Loading ${IS_NAMES[1]}
-	. ${IS_NAMES[1]} || {
-		clog 1 "[is_startStrappig()]" Loading ${IS_NAMES[1]} failed!
-	}
+#	clog 2 "[is_startStrapping()]" Loading ${IS_NAMES[1]}
+#	. ${IS_NAMES[1]} || {
+#		clog 1 "[is_startStrappig()]" Loading ${IS_NAMES[1]} failed!
+#	}
 	
 	# bs_install is the function that's been sourced by IS_NAMES[0]
 	bs_install || {
@@ -132,23 +93,23 @@ is_startStrapping(){
 	return 0
 }
 
-##
-# Deletes each downloaded file
-##
-is_clean(){
-	for ((i=0; i<${#IS_NAMES[*]}; i++)); do
-		rm ${IS_NAMES[i]} > /dev/null 2>&1 || {
-			clog 1 "[is_clean()]" Deletion of ${IS_NAMES[i]} failed!
-			return 1 
-		}
-	done
-	
-	rm env.conf > /dev/null 2>&1 || {
-		clog 1 "[is_clean()]" Deletion of env.conf failed!
-		return 1
-	}
-	return 0
-}
+# currently not used
+###
+## Deletes each downloaded file
+#archfai_clean(){
+#	for ((i=0; i<${#IS_NAMES[*]}; i++)); do
+#		rm ${IS_NAMES[i]} > /dev/null 2>&1 || {
+#			clog 1 "[is_clean()]" Deletion of ${IS_NAMES[i]} failed!
+#			return 1 
+#		}
+#	done
+#	
+#	rm env.conf > /dev/null 2>&1 || {
+#		clog 1 "[is_clean()]" Deletion of env.conf failed!
+#		return 1
+#	}
+#	return 0
+#}
 
 ##
 # Starting point
@@ -163,7 +124,7 @@ is_startOnline(){
 	[ -f "${OPT_SETTINGS}" ] && {
 		clog 3 "[is_startOnline()]" Found local settings File! Will now load it.
 		. ${OPT_SETTINGS} || {
-			clog 1 "[is_startOnline()]" Something failed while sourcing ${OPT_SETTINGS}
+			clog 1 "[is_startOnline()]" "Something failed while sourcing ${OPT_SETTINGS}"
 			exit 1
 		}
 		clog 3 "[is_startOnline()]" Loading finished successfully!
@@ -191,7 +152,7 @@ is_startOnline(){
 	exit 0
 }
 
-is_startLocal(){
+archfai_startLocal(){
 	# 1) Checking for primary files
 	for i in ${LOCAL_NAMES[*]}; do
 		echo "[is_startLocal()]" Checking for file $i.
@@ -226,7 +187,7 @@ is_startLocal(){
 	[ -f "${OPT_SETTINGS}" ] && {
 		clog 3 "[is_startOnline()]" Found local settings File! Will now load it.
 		. ${OPT_SETTINGS} || {
-			clog 1 "[is_startOnline()]" Something failed while sourcing ${OPT_SETTINGS}!
+			clog 1 "[is_startOnline()]" "Something failed while sourcing ${OPT_SETTINGS}!"
 			exit 1
 		}
 		clog 3 "[is_startOnline()]" Loading finished successfully!
@@ -250,7 +211,7 @@ is_startLocal(){
 	exit 0
 }
 
-is_help(){
+archfai_help(){
 	cat << EOF
 Archfai help
 ============
@@ -263,7 +224,7 @@ EOF
 	return 0
 }
 
-is_version(){
+archfai_version(){
 	cat << EOF
 Version: ${VERSION}
 ===================
@@ -275,29 +236,68 @@ EOF
 	return 0
 }
 
-[ "$#" -ne "0" ] && {
-	# TODO: parse commandline arguments
-	while getopts ${OPTSTR} input; do
+archfai_parseArgs(){
+	while getopts ${AF_OPTSTR} input; do
 		case ${input} in
-			(h) 
-				is_help
-				exit 0
+			(h) HELP="true" 
 				;;
-			(v) 
-				is_version
-				exit 0
+			(v) VERSION="true"
 				;;
-			(l)
-				echo Starting local...
-				is_startLocal
+			(l) RUNLOCAL="true"
 				;;
-			(*)
-				echo Invalid commandline argument!
-				is_help
-				exit 1
+			(*) clog 1 "[archfai_parseArgs()]" Option not allowed!
+				return 1
 				;;
 		esac
 	done
-} || {
-	is_startOnline
+
+	return 1
 }
+
+archfai_main(){
+	##
+	# Simple logging function used before env.conf
+	# is evaluated
+	function clog(){
+		if [ "$#" -eq "1" ]; then
+			cat
+			return 0
+		fi
+		shift
+		echo "$@"
+		return 0
+	}
+
+	archfai_parseArgs $@ || {
+		clog 1 "[archfai_main()]" Could not parse arguments!
+		return 1
+	}
+
+	archfai_init || {
+		clog 1 "[archfai_main()]" Archfai could not be initialized!
+		return 1
+	}
+
+
+	##
+	# Evaluate the option values
+	[ "$AF_VERSION" = "true" ] && {
+		archfai_version
+		return 0
+	}
+
+	[ "$AF_HELP" = "true" ] && {
+		archfai_help
+		return 0
+	}
+
+	[ "$AF_RUNLOCAL" = "true" ] && {
+
+	} || {
+		
+	}
+
+	return 0
+}
+
+archfai_main $@ && exit 0 || exit 1
