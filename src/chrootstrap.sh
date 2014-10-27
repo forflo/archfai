@@ -79,13 +79,6 @@ cs_setHost(){
 ##
 cs_configNetwork(){
 	clog 2 "[cs_configNetwork()]" Setting network configuration.
-
-	if [ ${CS_WIRED} -eq 0 ]; then
-		env_execChroot systemctl enable dhcpcd@${CS_WDEV}.service || return 1
-	else
-		env_execChroot systemctl enable dhcpcd@${CS_EDEV}.service || return 1
-	fi
-	
 	clog 2 "[cs_configNetwork]" Running net_hook.
 	net_hook || {
 		clog 1 "[cs_configNetwork]" net_hook failed!
