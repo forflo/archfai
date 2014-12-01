@@ -9,4 +9,5 @@
 net_hook(){
   # There cannot be a systemclt config statement because
   # the appropriate daemon isn't running yet!
+  :
 }
